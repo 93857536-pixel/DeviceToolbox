@@ -1,0 +1,96 @@
+name: DeviceToolbox
+options:
+  bundleIdPrefix: com.linminhao
+  developmentLanguage: zh-Hans
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CODE_SIGN_STYLE: Automatic
+    # 不带 DEVELOPMENT_TEAM:直接 Xcode 运行请填入你自己的 Team;
+    # 无签名构建(交付未签名 IPA)不需要任何 Team。
+
+targets:
+  DeviceToolbox:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Sources
+    resources:
+      - path: Sources/Resources
+    settings:
+      base:
+        # 伪装 MobileHouseArrest 身份(MCM/MHA 容器通道需要;ExploitCore mcm_bridge.m 有硬校验)
+        PRODUCT_BUNDLE_IDENTIFIER: com.apple.mobile.MobileHouseArrest
+        SWIFT_VERSION: "6.0"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SWIFT_OBJC_BRIDGING_HEADER: Sources/ExploitCore/DeviceToolbox-Bridging-Header.h
+        OTHER_LDFLAGS: "$(inherited) -lz"
+        TARGETED_DEVICE_FAMILY: "1"
+        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "1.0"
+        ENABLE_PREVIEWS: YES
+        INFOPLIST_KEY_UIUserInterfaceStyle: Automatic
+    info:
+      path: Sources/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: DeviceToolbox
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        NSCameraUsageDescription: "用于检测相机能力是否可用(不采集任何数据)。/ Used to check camera capability (no data collected)."
+        NSMicrophoneUsageDescription: "用于检测麦克风能力是否可用(不采集任何数据)。/ Used to check microphone capability (no data collected)."
+        NSLocationWhenInUseUsageDescription: "用于检测定位权限状态。/ Used to check location permission status."
+        NSPhotoLibraryUsageDescription: "用于检测相册权限状态。/ Used to check photo library permission status."
+        NSBluetoothAlwaysUsageDescription: "用于检测蓝牙权限状态。/ Used to check Bluetooth permission status."
+        NSFaceIDUsageDescription: "用于检测面容 ID 是否可用。/ Used to check Face ID availability."
+
+  DeviceToolboxTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Tests/DeviceToolboxTests
+    dependencies:
+      - target: DeviceToolbox
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.linminhao.DeviceToolboxTests
+        GENERATE_INFOPLIST_FILE: YES
+
+  DeviceToolboxUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Tests/DeviceToolboxUITests
+    dependencies:
+      - target: DeviceToolbox
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.linminhao.DeviceToolboxUITests
+        TEST_TARGET_NAME: DeviceToolbox
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  DeviceToolbox:
+    build:
+      targets:
+        DeviceToolbox: all
+        DeviceToolboxTests: [test]
+        DeviceToolboxUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: false
+      targets:
+        - DeviceToolboxTests
+        - DeviceToolboxUITests

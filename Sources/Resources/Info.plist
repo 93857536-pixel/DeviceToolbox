@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>DeviceToolbox</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>用于检测蓝牙权限状态。/ Used to check Bluetooth permission status.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>用于检测相机能力是否可用(不采集任何数据)。/ Used to check camera capability (no data collected).</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>用于检测面容 ID 是否可用。/ Used to check Face ID availability.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>用于检测定位权限状态。/ Used to check location permission status.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>用于检测麦克风能力是否可用(不采集任何数据)。/ Used to check microphone capability (no data collected).</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>用于检测相册权限状态。/ Used to check photo library permission status.</string>
+	<key>UILaunchScreen</key>
+	<dict/>
+</dict>
+</plist>

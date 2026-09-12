@@ -1,0 +1,290 @@
+[
+  {
+    "id": "battery",
+    "name": "电池状态读取",
+    "feature": "battery",
+    "minimumIOS": "10.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": false,
+    "detail": "通过 UIDevice 公开 API 读取电量与充电状态",
+    "actions": [
+      { "type": "test", "title": "测试", "value": "" }
+    ]
+  },
+  {
+    "id": "screen-refresh",
+    "name": "屏幕刷新率",
+    "feature": "screen-refresh",
+    "minimumIOS": "15.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "partial",
+    "requiresPermission": false,
+    "detail": "iOS 15+ 经 UIScreen 公开 API 读取最大刷新率,部分高刷机型返回 120",
+    "actions": []
+  },
+  {
+    "id": "build-number",
+    "name": "系统 Build 号",
+    "feature": "build-number",
+    "minimumIOS": "1.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "unsupported",
+    "requiresPermission": false,
+    "detail": "Apple 未向第三方 App 开放 Build Number 读取",
+    "actions": []
+  },
+  {
+    "id": "face-id",
+    "name": "面容 ID",
+    "feature": "face-id",
+    "minimumIOS": "11.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": true,
+    "detail": "经 LocalAuthentication 公开 API 检测面容 ID 是否可用",
+    "actions": [
+      { "type": "settings", "title": "打开设置", "value": "App-Prefs:root=FaceID" }
+    ]
+  },
+  {
+    "id": "touch-id",
+    "name": "触控 ID",
+    "feature": "touch-id",
+    "minimumIOS": "8.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": false,
+    "detail": "经 LocalAuthentication 公开 API 检测触控 ID 是否可用",
+    "actions": []
+  },
+  {
+    "id": "nfc",
+    "name": "NFC",
+    "feature": "nfc",
+    "minimumIOS": "11.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "partial",
+    "requiresPermission": false,
+    "detail": "第三方 App 仅能读取 NDEF 标签,完整 NFC 读写未开放",
+    "actions": []
+  },
+  {
+    "id": "5g",
+    "name": "5G 网络",
+    "feature": "5g",
+    "minimumIOS": "14.1",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "partial",
+    "requiresPermission": false,
+    "detail": "5G 状态公开 API 有限,可检测网络接口类型",
+    "actions": []
+  },
+  {
+    "id": "esim",
+    "name": "eSIM",
+    "feature": "esim",
+    "minimumIOS": "12.1",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "partial",
+    "requiresPermission": false,
+    "detail": "eSIM 状态无完整公开 API,部分信息不可得",
+    "actions": []
+  },
+  {
+    "id": "dynamic-island",
+    "name": "灵动岛",
+    "feature": "dynamic-island",
+    "minimumIOS": "16.0",
+    "maximumIOS": "",
+    "devices": [
+      "iPhone15,2",
+      "iPhone15,3",
+      "iPhone15,4",
+      "iPhone15,5",
+      "iPhone16,1",
+      "iPhone16,2",
+      "iPhone17,1",
+      "iPhone17,2",
+      "iPhone17,3",
+      "iPhone17,4"
+    ],
+    "status": "partial",
+    "requiresPermission": false,
+    "detail": "仅支持灵动岛机型,其尺寸与位置无公开 API",
+    "actions": []
+  },
+  {
+    "id": "always-on-display",
+    "name": "常亮显示",
+    "feature": "always-on-display",
+    "minimumIOS": "16.0",
+    "maximumIOS": "",
+    "devices": [
+      "iPhone15,2",
+      "iPhone15,3",
+      "iPhone16,1",
+      "iPhone16,2",
+      "iPhone17,1",
+      "iPhone17,2"
+    ],
+    "status": "partial",
+    "requiresPermission": false,
+    "detail": "仅部分 Pro 机型支持常亮显示,无公开 API 控制",
+    "actions": []
+  },
+  {
+    "id": "camera",
+    "name": "相机",
+    "feature": "camera",
+    "minimumIOS": "1.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": true,
+    "detail": "经 AVFoundation 公开 API 检测相机授权与可用性",
+    "actions": [
+      { "type": "settings", "title": "打开设置", "value": "App-Prefs:root=Privacy&path=CAMERA" }
+    ]
+  },
+  {
+    "id": "microphone",
+    "name": "麦克风",
+    "feature": "microphone",
+    "minimumIOS": "1.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": true,
+    "detail": "经 AVFoundation 公开 API 检测麦克风授权与可用性",
+    "actions": [
+      { "type": "settings", "title": "打开设置", "value": "App-Prefs:root=Privacy&path=MICROPHONE" }
+    ]
+  },
+  {
+    "id": "location",
+    "name": "定位",
+    "feature": "location",
+    "minimumIOS": "1.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": true,
+    "detail": "经 CoreLocation 公开 API 读取定位权限状态",
+    "actions": [
+      { "type": "settings", "title": "打开设置", "value": "App-Prefs:root=Privacy&path=LOCATION" }
+    ]
+  },
+  {
+    "id": "notifications",
+    "name": "通知",
+    "feature": "notifications",
+    "minimumIOS": "1.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": true,
+    "detail": "经 UserNotifications 公开 API 读取通知授权状态",
+    "actions": [
+      { "type": "settings", "title": "打开设置", "value": "App-Prefs:root=NOTIFICATIONS_ID" }
+    ]
+  },
+  {
+    "id": "photos",
+    "name": "相册",
+    "feature": "photos",
+    "minimumIOS": "1.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": true,
+    "detail": "经 Photos 公开 API 读取相册权限状态",
+    "actions": [
+      { "type": "settings", "title": "打开设置", "value": "App-Prefs:root=Privacy&path=PHOTOS" }
+    ]
+  },
+  {
+    "id": "contacts",
+    "name": "通讯录",
+    "feature": "contacts",
+    "minimumIOS": "1.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": true,
+    "detail": "经 Contacts 公开 API 读取通讯录权限状态",
+    "actions": [
+      { "type": "settings", "title": "打开设置", "value": "App-Prefs:root=Privacy&path=CONTACTS" }
+    ]
+  },
+  {
+    "id": "bluetooth",
+    "name": "蓝牙",
+    "feature": "bluetooth",
+    "minimumIOS": "1.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "supported",
+    "requiresPermission": true,
+    "detail": "经 CoreBluetooth 公开 API 读取蓝牙权限状态",
+    "actions": [
+      { "type": "settings", "title": "打开设置", "value": "App-Prefs:root=Bluetooth" }
+    ]
+  },
+  {
+    "id": "wireless-charging",
+    "name": "无线充电",
+    "feature": "wireless-charging",
+    "minimumIOS": "8.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "partial",
+    "requiresPermission": false,
+    "detail": "无线充电需硬件支持,无公开 API 直接读取",
+    "actions": []
+  },
+  {
+    "id": "reverse-charging",
+    "name": "反向充电",
+    "feature": "reverse-charging",
+    "minimumIOS": "1.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "unsupported",
+    "requiresPermission": false,
+    "detail": "反向无线充电无公开 API,Apple 未向第三方开放",
+    "actions": []
+  },
+  {
+    "id": "spatial-audio",
+    "name": "空间音频",
+    "feature": "spatial-audio",
+    "minimumIOS": "14.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "partial",
+    "requiresPermission": false,
+    "detail": "空间音频依赖硬件与 AirPods,无公开 API 检测",
+    "actions": []
+  },
+  {
+    "id": "assistive-touch",
+    "name": "辅助触控",
+    "feature": "assistive-touch",
+    "minimumIOS": "5.0",
+    "maximumIOS": "",
+    "devices": [],
+    "status": "partial",
+    "requiresPermission": false,
+    "detail": "可在无障碍设置开启,第三方 App 无法直接读取状态",
+    "actions": []
+  }
+]

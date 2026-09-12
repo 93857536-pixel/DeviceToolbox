@@ -1,0 +1,16 @@
+# 构建产物
+build/
+*.ipa
+*.dSYM
+DerivedData/
+
+# Xcode 用户级文件
+xcuserdata/
+*.xcuserstate
+
+# macOS
+.DS_Store
+
+# 日志/临时
+*.log
+/tmp/
