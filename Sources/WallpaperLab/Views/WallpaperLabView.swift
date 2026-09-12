@@ -15,6 +15,7 @@ struct WallpaperLabView: View {
     @State private var accessError: String?
     @State private var packages: [WallpaperStagedPackage] = []
     @State private var isBusy = false
+    @State private var isProbing = false
     @State private var operationKey = "wallpaper.checking"
     @State private var showImporter = false
     @State private var alert: WallpaperLabAlert?
@@ -38,8 +39,22 @@ struct WallpaperLabView: View {
             allowsMultipleSelection: true
         ) { result in
             showImporter = false
-            if case .success(let urls) = result, !urls.isEmpty {
-                importPackages(urls)
+            switch result {
+            case .success(let urls):
+                if urls.isEmpty {
+                    Log.info("wallpaper: picker returned empty selection")
+                } else {
+                    importPackages(urls)
+                }
+            case .failure(let error):
+                // 之前静默吞掉:选完文件点「打开」后系统取文件失败时无任何反馈。
+                Log.warning("wallpaper: file picker failed: \(error.localizedDescription)")
+                alert = WallpaperLabAlert(
+                    kind: .message(
+                        titleKey: "wallpaper.picker_failed_title",
+                        message: String(localized: "wallpaper.picker_failed_message")
+                    )
+                )
             }
         }
         .onAppear {
@@ -99,8 +114,12 @@ struct WallpaperLabView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                    Button(String(localized: "wallpaper.import")) { showImporter = true }
-                        .buttonStyle(.bordered)
+                    Button(String(localized: "wallpaper.import")) {
+                        // 与探针(isProbing)解耦:导入写自己的暂存目录,探针只读 PosterBoard,
+                        // 并行安全,不再被探针静默丢弃(旧版共用 isBusy → 点了没反应)。
+                        showImporter = true
+                    }
+                    .buttonStyle(.bordered)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
@@ -212,15 +231,15 @@ struct WallpaperLabView: View {
     }
 
     private func checkAccess() {
-        guard !isBusy else { return }
-        isBusy = true
+        guard !isProbing else { return }
+        isProbing = true
         operationKey = "wallpaper.checking"
         accessError = nil
         Task {
             let result = await Task.detached(priority: .userInitiated) {
                 Result { try WallpaperDeviceAccessService.report() }
             }.value
-            isBusy = false
+            isProbing = false
             switch result {
             case .success(let newReport):
                 report = newReport
@@ -238,7 +257,17 @@ struct WallpaperLabView: View {
     }
 
     private func importPackages(_ urls: [URL]) {
-        guard !isBusy else { return }
+        guard !isBusy else {
+            // 旧版静默 return(点了没反应):现在至少弹出提示。
+            Log.info("wallpaper: import blocked — busy (isBusy)")
+            alert = WallpaperLabAlert(
+                kind: .message(
+                    titleKey: "wallpaper.import_busy_title",
+                    message: String(localized: "wallpaper.import_busy_message")
+                )
+            )
+            return
+        }
         isBusy = true
         operationKey = "wallpaper.importing"
         Task {

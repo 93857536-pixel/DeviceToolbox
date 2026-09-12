@@ -584,3 +584,14 @@
 "system.container.export.done %@" = "已导出 %@ 到文件工作台(已导入)";
 "system.container.export.failed" = "导出失败";
 "system.container.export.too.large" = "容器过大,无法导出";
+
+// WallpaperLab picker failure (appended by fix 2026-09-12)
+"wallpaper.picker_failed_title" = "文件选择失败";
+"wallpaper.picker_failed_message" = "系统无法读取所选文件,请重试(若文件在 iCloud 未下载,请先下载)。";
+
+// wallpaper import read failure (appended 2026-09-12)
+"wallpaper.error.read_failed" = "无法读取文件,请确认文件已完整下载或位于本机";
+
+// wallpaper import busy hint (appended 2026-09-12)
+"wallpaper.import_busy_title" = "稍后再试";
+"wallpaper.import_busy_message" = "当前有其它操作正在进行,请等待其结束后再导入。";

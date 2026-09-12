@@ -584,3 +584,14 @@
 "system.container.export.done %@" = "Exported %@ to workspace (Imported)";
 "system.container.export.failed" = "Export failed";
 "system.container.export.too.large" = "Container is too large to export";
+
+// WallpaperLab picker failure (appended by fix 2026-09-12)
+"wallpaper.picker_failed_title" = "File Picker Failed";
+"wallpaper.picker_failed_message" = "The file could not be read. If it is an iCloud placeholder, download it first and retry.";
+
+// wallpaper import read failure (appended 2026-09-12)
+"wallpaper.error.read_failed" = "The file could not be read. Make sure it is fully downloaded or on this device.";
+
+// wallpaper import busy hint (appended 2026-09-12)
+"wallpaper.import_busy_title" = "Please Wait";
+"wallpaper.import_busy_message" = "Another operation is in progress. Try the import again when it finishes.";

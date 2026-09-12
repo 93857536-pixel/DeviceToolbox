@@ -201,12 +201,23 @@ enum WallpaperPackageStore {
         defer {
             if didAccess { sourceURL.stopAccessingSecurityScopedResource() }
         }
-        let values = try sourceURL.resourceValues(
-            forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey]
-        )
+        let values: URLResourceValues
+        do {
+            values = try sourceURL.resourceValues(
+                forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey]
+            )
+        } catch {
+            // 安全域 URL 失效 / 读取失败(如 iCloud 未下载的占位文件),此前被误报为"不支持的包"。
+            Log.warning("wallpaper: import rejected \(sourceURL.lastPathComponent): properties unreadable (\(error.localizedDescription))")
+            throw WallpaperLabError.importReadFailed
+        }
         guard values.isRegularFile == true,
               values.isSymbolicLink != true else {
-            throw WallpaperLabError.symbolicLinkUnsupported
+            if values.isSymbolicLink == true {
+                throw WallpaperLabError.symbolicLinkUnsupported
+            }
+            Log.warning("wallpaper: import rejected \(sourceURL.lastPathComponent): not a readable regular file (regular=\(String(describing: values.isRegularFile)))")
+            throw WallpaperLabError.importReadFailed
         }
         let size = Int64(values.fileSize ?? 0)
         guard size > 0, size <= WallpaperLabLimits.maximumArchiveBytes else {
@@ -285,8 +296,10 @@ enum WallpaperPackageStore {
             try? fileManager.removeItem(at: importingURL)
             throw error
         } catch {
+            // 磁盘满/解压/写元数据等底层失败,此前无日志地吞成 unsupportedPackage。
+            Log.warning("wallpaper: import failed \(sourceURL.lastPathComponent): \(error.localizedDescription)")
             try? fileManager.removeItem(at: importingURL)
-            throw WallpaperLabError.unsupportedPackage
+            throw WallpaperLabError.importReadFailed
         }
     }
 

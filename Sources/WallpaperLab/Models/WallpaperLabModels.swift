@@ -11,6 +11,7 @@ enum WallpaperLabError: Error, Equatable, Sendable {
     case packageTooLarge
     case noDescriptors
     case accessDenied
+    case importReadFailed
     case backupFailed
     case installFailed
     case restoreFailed
@@ -28,6 +29,7 @@ extension WallpaperLabError: LocalizedError {
         case .packageTooLarge: return "wallpaper.error.size"
         case .noDescriptors: return "wallpaper.error.no_descriptors"
         case .accessDenied: return "wallpaper.error.access"
+        case .importReadFailed: return "wallpaper.error.read_failed"
         case .backupFailed: return "wallpaper.error.backup"
         case .installFailed: return "wallpaper.error.install"
         case .restoreFailed: return "wallpaper.error.restore"
