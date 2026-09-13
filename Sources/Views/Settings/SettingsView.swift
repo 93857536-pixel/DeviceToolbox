@@ -9,6 +9,7 @@ enum SettingsRoute: Hashable {
 /// 设置:关于 / 免责声明 / 隐私 / 开源许可 / 检查更新 / 清除缓存 / 重置免责声明。
 struct SettingsView: View {
     @EnvironmentObject private var rootViewModel: RootViewModel
+    @ObservedObject private var languageManager = LanguageManager.shared
 
     @State private var activeSheet: SettingsSheet?
     @State private var showClearCacheDone = false
@@ -48,6 +49,7 @@ struct SettingsView: View {
                 NavigationLink(value: SettingsRoute.operationLog) {
                     Label(String(localized: "settings.data.logs"), systemImage: "list.bullet.rectangle")
                 }
+                .accessibilityIdentifier("settings.logLink")
             }
 
             Section(String(localized: "settings.general")) {
@@ -61,6 +63,8 @@ struct SettingsView: View {
                     activeSheet = .licenses
                 }
             }
+
+            languageSection
 
             Section(String(localized: "settings.actions")) {
                 Button(String(localized: "settings.check.update")) {
@@ -125,6 +129,36 @@ struct SettingsView: View {
 
     private var appVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+    }
+
+    /// 语言切换区:Picker 选中即写入 `AppleLanguages`(应用级偏好),重启 App 后生效;
+    /// 未重启时显示提示。
+    private var languageSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                Picker(
+                    String(localized: "settings.language"),
+                    selection: Binding(
+                        get: { languageManager.selected },
+                        set: { languageManager.select($0) }
+                    )
+                ) {
+                    ForEach(AppLanguage.allCases) { lang in
+                        Text(lang.displayName).tag(lang)
+                    }
+                }
+                .pickerStyle(.menu)
+                .accessibilityIdentifier("settings.languagePicker")
+                if !languageManager.isSelectionApplied {
+                    Label(String(localized: "settings.language.restartHint"), systemImage: "arrow.clockwise")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("settings.languageRestartHint")
+                }
+            }
+        } header: {
+            Text(String(localized: "settings.language"))
+        }
     }
 
     private func clearCache() {

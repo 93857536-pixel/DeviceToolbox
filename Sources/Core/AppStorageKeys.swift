@@ -14,4 +14,6 @@ enum AppStorageKeys {
     static let lowPowerModeNotified = "lowPowerModeNotified"
     /// 全应用折叠玻璃特效开关(FoldEffectEngine)
     static let foldEffectEnabled = "foldEffectEnabled"
+    /// 用户选择的 App 语言(BCP-47 标签,如 "ja"、"zh-Hant";"system" 表示跟随系统)
+    static let appLanguage = "appLanguage"
 }

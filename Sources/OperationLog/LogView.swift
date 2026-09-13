@@ -5,9 +5,18 @@ import UIKit
 /// 底部复制(UIPasteboard)/分享(ShareLink)。
 @MainActor
 struct LogView: View {
+    enum UploadState: Equatable {
+        case idle
+        case uploading
+        case success
+        case failure(String)
+    }
+
     @State private var showErrorsOnly = false
     @State private var entries: [LogEntry] = []
     @State private var showCopied = false
+    @State private var uploadState: UploadState = .idle
+    @State private var showUploadResult = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -50,8 +59,23 @@ struct LogView: View {
         .alert(String(localized: "logviewer.copied"), isPresented: $showCopied) {
             Button(String(localized: "common.ok"), role: .cancel) {}
         }
+        .alert(uploadAlertTitle, isPresented: $showUploadResult) {
+            Button(String(localized: "common.ok"), role: .cancel) {}
+        } message: {
+            if case .failure(let detail) = uploadState {
+                Text(detail)
+            }
+        }
         .onAppear { reload() }
         .onChange(of: showErrorsOnly) { _, _ in reload() }
+    }
+
+    private var uploadAlertTitle: String {
+        switch uploadState {
+        case .success: return String(localized: "logviewer.uploaded")
+        case .failure: return String(localized: "logviewer.upload.failed")
+        default: return String(localized: "logviewer.uploaded")
+        }
     }
 
     // MARK: - 空态
@@ -118,11 +142,44 @@ struct LogView: View {
                     Label(String(localized: "logviewer.share"), systemImage: "square.and.arrow.up")
                 }
             }
+
+            uploadButton
         }
         .font(.subheadline)
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity)
         .background(.ultraThinMaterial)
+    }
+
+    private var uploadButton: some View {
+        Button(action: upload) {
+            Group {
+                if uploadState == .uploading {
+                    Label(String(localized: "logviewer.uploading"), systemImage: "hourglass")
+                } else {
+                    Label(String(localized: "logviewer.upload"), systemImage: "square.and.arrow.up.on.square")
+                }
+            }
+        }
+        .disabled(entries.isEmpty || uploadState == .uploading)
+        .accessibilityIdentifier("logviewer.uploadButton")
+    }
+
+    /// 点「上传日志」:主动把当前日志(受过滤器影响)+ 最小设备上下文传到维护者服务器。
+    private func upload() {
+        guard !entries.isEmpty, uploadState != .uploading else { return }
+        uploadState = .uploading
+        Task {
+            let result = await LogUploadService.upload(logText: exportText, meta: LogUploadService.deviceMeta())
+            switch result.status {
+            case .success:
+                uploadState = .success
+                showUploadResult = true
+            case .failure(let detail):
+                uploadState = .failure(detail)
+                showUploadResult = true
+            }
+        }
     }
 
     // MARK: - 逻辑

@@ -15,7 +15,7 @@
 
 /* Disclaimer */
 "disclaimer.title" = "Notice & Disclaimer";
-"disclaimer.body" = "DeviceToolbox is a system diagnostics and device information tool built entirely on Apple's public APIs. It only reads public device information and system capability status, and performs no jailbreaking, privilege escalation, private API usage, or security boundary bypass.\n\nAll detection runs locally on your device; no personal data is collected or uploaded. For features Apple does not expose to third-party apps, this app honestly marks them as \"Unsupported\" and explains why.\n\nPlease comply with local laws and regulations and use this tool responsibly.";
+"disclaimer.body" = "DeviceToolbox is a system diagnostics and device information tool built entirely on Apple's public APIs. It only reads public device information and system capability status, and performs no jailbreaking, privilege escalation, private API usage, or security boundary bypass.\n\nAll detection runs locally on your device; no personal data is collected or uploaded. For features Apple does not expose to third-party apps, this app honestly marks them as \"Unsupported\" and explains why.\n\nPlease comply with local laws and regulations and use this tool responsibly.  The Operation Log page contains an optional “Upload Log” button. Tapping it sends ONLY the app's own operation logs (the entries shown on that page) and minimal device context (iOS version, model, app version, language) to the maintainer's server at linminhao.top. No personal data (IMEI, IDFA, location, account identifiers) is ever collected or uploaded. Uploads occur only on your explicit request — never automatically.";
 "disclaimer.accept" = "I have read and agree";
 "disclaimer.quit" = "Quit";
 "disclaimer.quit.hint" = "You can quit the app manually";
@@ -162,6 +162,9 @@
 "settings.privacy" = "Privacy";
 "settings.privacy.body" = "This app does not collect or upload any personal data; all detection is performed locally.";
 "settings.licenses" = "Open Source Licenses";
+"language.system" = "System Default";
+"settings.language" = "Language";
+"settings.language.restartHint" = "Saved; takes effect after restarting the app";
 "settings.licenses.body" = "Built on Apple's public frameworks (SwiftUI / Foundation) with zero third-party dependencies.";
 "settings.actions" = "Actions";
 "settings.check.update" = "Check for Updates";
@@ -636,3 +639,9 @@
 "fold.lab.escape.button" = "Disable Fold Effect";
 "fold.lab.escape.hint" = "App-wide fold effect is on — tap to turn it off";
 "tab.experiments" = "Experiments";
+
+/* 日志上传 */
+"logviewer.upload" = "Upload Log";
+"logviewer.uploading" = "Uploading…";
+"logviewer.uploaded" = "Log uploaded";
+"logviewer.upload.failed" = "Upload failed:";

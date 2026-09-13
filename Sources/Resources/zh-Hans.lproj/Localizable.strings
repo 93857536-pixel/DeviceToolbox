@@ -15,7 +15,7 @@
 
 /* 免责声明 */
 "disclaimer.title" = "使用须知与免责声明";
-"disclaimer.body" = "DeviceToolbox 是一款基于 Apple 公开 API 的系统诊断与设备信息检测工具。本应用仅读取设备公开信息与系统能力状态,不进行任何越狱、提权、私有 API 调用或安全边界绕过。\n\n所有检测均在本地设备完成,不采集、不上传任何个人数据。对于 Apple 未向第三方 App 开放的功能,本应用将如实标注为「不支持」并说明原因。\n\n请遵守当地法律法规,合理使用本工具。";
+"disclaimer.body" = "DeviceToolbox 是一款基于 Apple 公开 API 的系统诊断与设备信息检测工具。本应用仅读取设备公开信息与系统能力状态,不进行任何越狱、提权、私有 API 调用或安全边界绕过。\n\n所有检测均在本地设备完成,不采集、不上传任何个人数据。对于 Apple 未向第三方 App 开放的功能,本应用将如实标注为「不支持」并说明原因。\n\n请遵守当地法律法规,合理使用本工具。 「操作日志」页提供可选的“上传日志”按钮。点击后,仅会把 App 自身的操作日志(即该页显示的条目)与最少设备信息(iOS 版本、机型、应用版本、语言)发送到维护者服务器(linminhao.top)。不会收集或上传任何个人数据(IMEI、IDFA、位置、账号标识)。上传仅在你明确点击时发生,绝不自动上传。";
 "disclaimer.accept" = "我已阅读并同意";
 "disclaimer.quit" = "退出应用";
 "disclaimer.quit.hint" = "您可手动退出应用";
@@ -162,6 +162,9 @@
 "settings.privacy" = "隐私说明";
 "settings.privacy.body" = "本应用不采集、不上传任何个人数据,所有检测均在本地完成。";
 "settings.licenses" = "开源许可";
+"language.system" = "跟随系统";
+"settings.language" = "语言";
+"settings.language.restartHint" = "已保存,重启 App 后生效";
 "settings.licenses.body" = "本应用基于 Apple 公开系统框架(SwiftUI / Foundation)构建,零第三方依赖。";
 "settings.actions" = "操作";
 "settings.check.update" = "检查更新";
@@ -636,3 +639,9 @@
 "fold.lab.escape.button" = "关闭折叠特效";
 "fold.lab.escape.hint" = "全应用折叠特效已开启,点此立即关闭";
 "tab.experiments" = "实验";
+
+/* 日志上传 */
+"logviewer.upload" = "上传日志";
+"logviewer.uploading" = "正在上传…";
+"logviewer.uploaded" = "日志已上传";
+"logviewer.upload.failed" = "上传失败:";

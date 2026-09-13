@@ -29,6 +29,18 @@ struct DeviceToolboxApp: App {
         if arguments.contains("-resetDisclaimer") {
             UserDefaults.standard.removeObject(forKey: AppStorageKeys.disclaimerAccepted)
         }
+        // UI 测试支持:launch argument 直接设定 App 语言(与 AppleLanguages 同步),
+        // 避免测试依赖"设置页选语言 + 重启"流程。
+        if let langArg = arguments.first(where: { $0.hasPrefix("-language=") }) {
+            let tag = String(langArg.dropFirst("-language=".count))
+            if tag == "system" {
+                // "system" 不是合法 BCP-47 标签:清除覆盖,回退系统语言
+                UserDefaults.standard.removeObject(forKey: LanguageManager.appleLanguagesKey)
+            } else {
+                UserDefaults.standard.set([tag], forKey: LanguageManager.appleLanguagesKey)
+            }
+            UserDefaults.standard.set(tag, forKey: AppStorageKeys.appLanguage)
+        }
         _rootViewModel = StateObject(wrappedValue: RootViewModel())
 
         // 液态玻璃外观:Tab 栏透明 + 超薄材质(浅色/深色模式自适应)。
