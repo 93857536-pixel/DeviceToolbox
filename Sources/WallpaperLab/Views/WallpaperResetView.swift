@@ -5,9 +5,13 @@ import SwiftUI
 @MainActor
 struct WallpaperResetView: View {
     @State private var report: WallpaperAccessReport?
-    @State private var isBusy = false
+    /// 探针与重置各自独立(共享标志会把并发操作静默丢弃)。
+    @State private var isProbing = false
+    @State private var isResetting = false
     @State private var operationKey = "wallpaper.checking"
     @State private var alert: WallpaperResetAlert?
+
+    private var isWorking: Bool { isProbing || isResetting }
 
     var body: some View {
         List {
@@ -26,7 +30,7 @@ struct WallpaperResetView: View {
                         Text("\(report.customDescriptorCount)")
                             .monospacedDigit()
                     }
-                } else if !isBusy {
+                } else if !isWorking {
                     Label(
                         String(localized: "wallpaper.error.access"),
                         systemImage: "xmark.shield.fill"
@@ -38,6 +42,19 @@ struct WallpaperResetView: View {
             if let report, report.customDescriptorCount > 0 {
                 Section {
                     Button(role: .destructive) {
+                        // 不再 `.disabled(!report.canInstall)`:禁用按钮 = 点了完全没反应。
+                        // 常显 + 守卫命中时给出"未确认可写"的明确原因与指引。
+                        guard report.canInstall else {
+                            Log.warning("wallpaper: reset blocked — PosterBoard not writable (read-only)")
+                            deliver(
+                                WallpaperResetAlert(
+                                    kind: .failure(
+                                        String(localized: "wallpaper.install_blocked_message")
+                                    )
+                                )
+                            )
+                            return
+                        }
                         alert = WallpaperResetAlert(kind: .confirm)
                     } label: {
                         Label(
@@ -45,7 +62,6 @@ struct WallpaperResetView: View {
                             systemImage: "arrow.counterclockwise"
                         )
                     }
-                    .disabled(isBusy || !report.canInstall)
                 } footer: {
                     Text(String(localized: "wallpaper.reset_footer"))
                 }
@@ -73,10 +89,10 @@ struct WallpaperResetView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
+                // 常显且不禁用:进行中再点会弹"稍后重试",而不是一个按不动的按钮。
                 Button(action: checkAccess) {
                     Image(systemName: "arrow.clockwise")
                 }
-                .disabled(isBusy)
                 .accessibilityLabel(String(localized: "wallpaper.try_again"))
             }
         }
@@ -87,7 +103,7 @@ struct WallpaperResetView: View {
 
     @ViewBuilder
     private var busyOverlay: some View {
-        if isBusy {
+        if isWorking {
             ZStack {
                 Color.black.opacity(0.12).ignoresSafeArea()
                 VStack(spacing: 12) {
@@ -135,50 +151,77 @@ struct WallpaperResetView: View {
     }
 
     private func checkAccess() {
-        guard !isBusy else { return }
-        isBusy = true
+        guard !isProbing else {
+            // 守卫命中弹提示,不再静默 return(点了没反应)。
+            Log.info("wallpaper: reset probe blocked — already probing")
+            presentBusy()
+            return
+        }
+        isProbing = true
         operationKey = "wallpaper.checking"
         Task {
+            // defer 保证任何路径都复位(卡死的 busy 会让之后所有操作被守卫拦)。
+            defer { isProbing = false }
             let result = await Task.detached(priority: .userInitiated) {
                 Result { try WallpaperDeviceAccessService.report() }
             }.value
-            isBusy = false
             switch result {
             case .success(let newReport):
                 report = newReport
             case .failure(let error):
                 report = nil
-                alert = WallpaperResetAlert(kind: .failure(wallpaperErrorMessage(error)))
+                Log.warning("wallpaper: reset probe failed \(error.localizedDescription)")
+                deliver(WallpaperResetAlert(kind: .failure(wallpaperErrorMessage(error))))
             }
         }
     }
 
     private func resetCollections() {
-        guard !isBusy else { return }
-        isBusy = true
+        guard !isResetting else {
+            Log.info("wallpaper: reset blocked — busy (isResetting)")
+            presentBusy()
+            return
+        }
+        isResetting = true
         operationKey = "wallpaper.restoring"
         Task {
+            defer { isResetting = false }
             let result = await Task.detached(priority: .userInitiated) {
                 Result { try WallpaperDeviceAccessService.resetCustomCollections() }
             }.value
-            isBusy = false
             switch result {
             case .success(let (removed, refreshedReport)):
                 report = refreshedReport
                 Log.info("wallpaper: reset removed \(removed) custom descriptors")
-                alert = WallpaperResetAlert(kind: .success)
+                deliver(WallpaperResetAlert(kind: .success))
             case .failure(let error):
-                alert = WallpaperResetAlert(kind: .failure(wallpaperErrorMessage(error)))
+                Log.warning("wallpaper: reset failed \(error.localizedDescription)")
+                deliver(WallpaperResetAlert(kind: .failure(wallpaperErrorMessage(error))))
             }
+        }
+    }
+
+    private func presentBusy() {
+        deliver(
+            WallpaperResetAlert(kind: .failure(String(localized: "wallpaper.busy_message")))
+        )
+    }
+
+    /// 延迟交付 alert:确认弹窗被点掉后的同一帧里请求新 alert 会被 UIKit 静默丢弃
+    /// (旧版"点了没反应"的同一类问题),等一格 runloop + 200ms 再交付。
+    private func deliver(_ newAlert: WallpaperResetAlert) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(200))
+            alert = newAlert
         }
     }
 }
 
-private struct WallpaperResetAlert: Identifiable {
+private struct WallpaperResetAlert: Identifiable, Sendable {
     let id = UUID()
     let kind: Kind
 
-    enum Kind {
+    enum Kind: Sendable {
         case confirm
         case success
         case failure(String)

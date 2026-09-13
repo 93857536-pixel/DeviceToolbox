@@ -195,6 +195,10 @@ enum WallpaperPackageStore {
         fileManager: FileManager = .default
     ) throws -> WallpaperStagedPackage {
         guard sourceURL.pathExtension.lowercased() == "tendies" else {
+            Log.warning(
+                "wallpaper: import rejected \(sourceURL.lastPathComponent): " +
+                    "extension '\(sourceURL.pathExtension)' is not .tendies"
+            )
             throw WallpaperLabError.unsupportedPackage
         }
         let didAccess = sourceURL.startAccessingSecurityScopedResource()
@@ -204,12 +208,27 @@ enum WallpaperPackageStore {
         let values: URLResourceValues
         do {
             values = try sourceURL.resourceValues(
-                forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey]
+                forKeys: [
+                    .isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey,
+                    .isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey
+                ]
             )
         } catch {
-            // 安全域 URL 失效 / 读取失败(如 iCloud 未下载的占位文件),此前被误报为"不支持的包"。
+            // 安全域 URL 失效 / 读取失败,此前被误报为"不支持的包"。
             Log.warning("wallpaper: import rejected \(sourceURL.lastPathComponent): properties unreadable (\(error.localizedDescription))")
             throw WallpaperLabError.importReadFailed
+        }
+        // iCloud 占位符显式检测:属性可读、体积看似正常,但内容未落地 —— 复制时才失败且报错含糊,
+        // 用户侧表现为"选完文件点打开后一片安静"。这里提前给出明确原因并尽力请求系统开始下载。
+        if values.isUbiquitousItem == true,
+           let status = values.ubiquitousItemDownloadingStatus,
+           status != .current, status != .downloaded {
+            Log.warning(
+                "wallpaper: import rejected \(sourceURL.lastPathComponent): " +
+                    "iCloud item not downloaded (status=\(status.rawValue)); requesting download"
+            )
+            try? fileManager.startDownloadingUbiquitousItem(at: sourceURL)
+            throw WallpaperLabError.importCloudNotDownloaded
         }
         guard values.isRegularFile == true,
               values.isSymbolicLink != true else {
@@ -220,7 +239,19 @@ enum WallpaperPackageStore {
             throw WallpaperLabError.importReadFailed
         }
         let size = Int64(values.fileSize ?? 0)
-        guard size > 0, size <= WallpaperLabLimits.maximumArchiveBytes else {
+        guard size > 0 else {
+            // 0 字节 = 空文件(真正的 iCloud 占位符已在上面的 ubiquitous 分支单独识别)。
+            Log.warning(
+                "wallpaper: import rejected \(sourceURL.lastPathComponent): " +
+                    "zero-byte source (empty file)"
+            )
+            throw WallpaperLabError.importReadFailed
+        }
+        guard size <= WallpaperLabLimits.maximumArchiveBytes else {
+            Log.warning(
+                "wallpaper: import rejected \(sourceURL.lastPathComponent): " +
+                    "size=\(size) exceeds limit=\(WallpaperLabLimits.maximumArchiveBytes)"
+            )
             throw WallpaperLabError.packageTooLarge
         }
         let resolvedDisplayName = (
@@ -230,6 +261,10 @@ enum WallpaperPackageStore {
               repositoryIdentity.map({
                   isValidMetadataText($0, maximumBytes: 4_096)
               }) ?? true else {
+            Log.warning(
+                "wallpaper: import rejected \(sourceURL.lastPathComponent): " +
+                    "invalid display name (bytes=\(resolvedDisplayName.utf8.count))"
+            )
             throw WallpaperLabError.unsupportedPackage
         }
 
@@ -240,13 +275,21 @@ enum WallpaperPackageStore {
             isDirectory: true
         )
         let finalURL = root.appendingPathComponent(id.uuidString, isDirectory: true)
+        // 记录失败发生在哪个阶段:外层 catch 据此给出**正确**的错误类别,
+        // 不再把磁盘/写入问题一律误导成"读不到文件"(或反之)。
+        var stage = "staging"
         do {
             try fileManager.createDirectory(
                 at: importingURL,
                 withIntermediateDirectories: false
             )
+            stage = "copy"
             let archiveURL = importingURL.appendingPathComponent(archiveName)
             try fileManager.copyItem(at: sourceURL, to: archiveURL)
+            Log.info(
+                "wallpaper: staged source bytes=\(size) \(sourceURL.lastPathComponent)"
+            )
+            stage = "extract"
             let extractedURL = importingURL.appendingPathComponent(
                 extractedName,
                 isDirectory: true
@@ -255,9 +298,19 @@ enum WallpaperPackageStore {
             do {
                 _ = try ZipArchiveService.extract(archive: archiveURL, to: extractedURL)
             } catch let error as FileOperationError {
+                // 解压失败此前无日志、且一律映射成"不支持的包"(把磁盘满/解压中断/I-O 全说成格式问题)。
+                Log.warning(
+                    "wallpaper: extract failed \(sourceURL.lastPathComponent): " +
+                        "\(error.localizedDescription)"
+                )
                 switch error {
                 case .unsafeArchive: throw WallpaperLabError.unsafeArchive
                 case .symbolicLinkUnsupported: throw WallpaperLabError.symbolicLinkUnsupported
+                case .cannotExtract, .cannotRead, .cannotArchive, .cannotCreate,
+                     .cannotImport, .cannotCopy, .cannotMove, .cannotDelete,
+                     .destinationMissing, .insufficientSpace:
+                    // 解压/落盘侧 I/O 失败:单独 case,不要误报成"不支持的包"。
+                    throw WallpaperLabError.importWriteFailed
                 default: throw WallpaperLabError.unsupportedPackage
                 }
             }
@@ -273,13 +326,16 @@ enum WallpaperPackageStore {
             )
             let encoder = PropertyListEncoder()
             encoder.outputFormat = .binary
+            stage = "metadata"
             try encoder.encode(metadata).write(
                 to: importingURL.appendingPathComponent(metadataName),
                 options: .atomic
             )
+            stage = "commit"
             guard rename(importingURL.path, finalURL.path) == 0 else {
-                throw WallpaperLabError.unsafeArchive
+                throw WallpaperLabError.importWriteFailed
             }
+            stage = "verify"
             let importedPackage = try loadPackage(
                 at: finalURL,
                 fileManager: fileManager
@@ -288,7 +344,14 @@ enum WallpaperPackageStore {
                 for existingPackage in packages(fileManager: fileManager)
                 where existingPackage.id != importedPackage.id
                     && existingPackage.repositoryIdentity == repositoryIdentity {
-                    try? delete(existingPackage, fileManager: fileManager)
+                    do {
+                        try delete(existingPackage, fileManager: fileManager)
+                    } catch {
+                        Log.warning(
+                            "wallpaper: previous staged package kept " +
+                                "\(existingPackage.id.uuidString): \(error.localizedDescription)"
+                        )
+                    }
                 }
             }
             return importedPackage
@@ -296,10 +359,18 @@ enum WallpaperPackageStore {
             try? fileManager.removeItem(at: importingURL)
             throw error
         } catch {
-            // 磁盘满/解压/写元数据等底层失败,此前无日志地吞成 unsupportedPackage。
-            Log.warning("wallpaper: import failed \(sourceURL.lastPathComponent): \(error.localizedDescription)")
+            // 底层(非 WallpaperLabError)失败:此前无日志地吞成 unsupportedPackage,
+            // 用户拿到的是完全不着边际的"不支持的包"。现在带上失败阶段 + 原始描述。
+            Log.warning(
+                "wallpaper: import failed stage=\(stage) " +
+                    "\(sourceURL.lastPathComponent): \(error.localizedDescription)"
+            )
             try? fileManager.removeItem(at: importingURL)
-            throw WallpaperLabError.importReadFailed
+            // 只有"取副本"这一步的失败才是读取侧问题(iCloud 未落地 / 安全域 URL 失效);
+            // 建暂存目录、写元数据、提交改名、落盘之类都是写入侧问题 —— 分开报,别互相误导。
+            throw stage == "copy"
+                ? WallpaperLabError.importReadFailed
+                : WallpaperLabError.importWriteFailed
         }
     }
 
@@ -312,7 +383,16 @@ enum WallpaperPackageStore {
               ) else { return [] }
         return directories.compactMap { directory in
             guard UUID(uuidString: directory.lastPathComponent) != nil else { return nil }
-            return try? loadPackage(at: directory, fileManager: fileManager)
+            do {
+                return try loadPackage(at: directory, fileManager: fileManager)
+            } catch {
+                // 之前是 `try?`:导入"成功"但列表里不出现的现象没有任何线索(静默丢弃)。
+                Log.warning(
+                    "wallpaper: staged package unreadable \(directory.lastPathComponent): " +
+                        "\(error.localizedDescription)"
+                )
+                return nil
+            }
         }.sorted { $0.importedAt > $1.importedAt }
     }
 

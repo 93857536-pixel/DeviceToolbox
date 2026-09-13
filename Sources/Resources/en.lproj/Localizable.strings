@@ -614,3 +614,18 @@
 "fold.lab.demo.battery" = "Battery";
 "fold.lab.demo.network" = "Network";
 "fold.lab.demo.messages" = "Messages";
+
+// ==== WallpaperLab import feedback hardening (dynamic wallpaper silent path fix, appended 2026-09-13) ====
+"wallpaper.busy_title" = "Try Again Later";
+"wallpaper.busy_message" = "Another operation is in progress. Please wait for it to finish.";
+"wallpaper.picker_empty_title" = "No File Selected";
+"wallpaper.picker_empty_message" = "No .tendies package was selected. Please pick one again.";
+"wallpaper.notice_dismiss" = "Dismiss notice";
+"wallpaper.import_dynamic_title" = "Dynamic Wallpapers Not Supported";
+"wallpaper.import_dynamic_hint" = "This package contains dynamic/live wallpaper content (video or Live Photo payloads). This import path only supports static Collections/Photos/Mercury descriptors - please use a static wallpaper package.";
+"wallpaper.error.write_failed" = "Write failed (out of space or interrupted extraction). Please try again.";
+"wallpaper.error.dynamic_unsupported" = "Dynamic/live wallpaper content is not supported";
+"wallpaper.error.dynamic_unsupported_detail" = "Dynamic/live wallpaper content is not supported (detected: %@)";
+"wallpaper.error.cloud_not_downloaded" = "This file has not been downloaded from iCloud yet. Download it in the Files app first, then try again.";
+"wallpaper.install_blocked_title" = "Install Not Available";
+"wallpaper.install_blocked_message" = "PosterBoard writability has not been confirmed (container access may be missing, or the probe did not pass). Tap the refresh button in the top bar to re-probe, then install.";

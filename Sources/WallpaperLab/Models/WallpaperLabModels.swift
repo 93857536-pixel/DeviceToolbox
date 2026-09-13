@@ -11,7 +11,16 @@ enum WallpaperLabError: Error, Equatable, Sendable {
     case packageTooLarge
     case noDescriptors
     case accessDenied
+    /// 源文件读不到(安全域 URL 失效 / iCloud 未下载占位 / 属性不可读)——I/O 失败,不是格式问题。
     case importReadFailed
+    /// 解压或写暂存目录失败(磁盘满 / 解压中断等)——I/O 失败,不是格式问题。
+    case importWriteFailed
+    /// 包内是动态/实况壁纸载荷(视频 / 实况照片),当前导入通道只支持静态描述符。
+    /// 携带探测到的内容标记(目录名或扩展名),用于给用户明确原因,而不是笼统"不支持"。
+    case dynamicContentUnsupported(detail: String)
+    /// 源文件是 iCloud 占位符(尚未下载到本地):属性可读、体积看似正常,但内容未落地。
+    /// 与"读不到文件"区分开,给用户"请先在文件 App 中下载完成"的明确指引。
+    case importCloudNotDownloaded
     case backupFailed
     case installFailed
     case restoreFailed
@@ -30,6 +39,9 @@ extension WallpaperLabError: LocalizedError {
         case .noDescriptors: return "wallpaper.error.no_descriptors"
         case .accessDenied: return "wallpaper.error.access"
         case .importReadFailed: return "wallpaper.error.read_failed"
+        case .importWriteFailed: return "wallpaper.error.write_failed"
+        case .dynamicContentUnsupported: return "wallpaper.error.dynamic_unsupported"
+        case .importCloudNotDownloaded: return "wallpaper.error.cloud_not_downloaded"
         case .backupFailed: return "wallpaper.error.backup"
         case .installFailed: return "wallpaper.error.install"
         case .restoreFailed: return "wallpaper.error.restore"
@@ -335,6 +347,72 @@ enum WallpaperLayoutScanner {
     }
 }
 
+/// 包内容探测:把"包内没有可用描述符"细化为**可读原因**(动态/实况壁纸载荷 vs 纯垃圾包)。
+///
+/// 纯文件系统只读探测(无系统调用、无特权 API),模拟器可安全调用。
+/// 用途:动态壁纸包整体被判 unsupported 时,必须给用户明确提示(哪类内容不支持、为什么),
+/// 而不是笼统报"包内没有描述符"或静默失败。
+enum TendiesContentProbe {
+    /// 目录/文件名中出现即视为动态/实况壁纸载荷。
+    static let dynamicNameMarkers = [
+        "dynamic", "live", "motion", "animated", "movie", "video"
+    ]
+    /// 出现即视为动态/实况壁纸载荷的扩展名(视频/动图/实况照片)。
+    static let dynamicFileExtensions: Set<String> = [
+        "mov", "mp4", "m4v", "hevc", "h265", "avi", "gif", "webp", "apng", "livephoto"
+    ]
+
+    struct Summary: Sendable {
+        var markers: [String] = []
+        var topLevelNames: [String] = []
+        var fileCount = 0
+
+        var isDynamic: Bool { !markers.isEmpty }
+    }
+
+    /// 有界遍历包目录(最多 `entryLimit` 条),返回动态内容标记 + 顶层名 + 文件数。
+    static func summarize(
+        at packageURL: URL,
+        fileManager: FileManager = .default,
+        entryLimit: Int = 2_000
+    ) -> Summary {
+        var summary = Summary()
+        if let topLevel = try? fileManager.contentsOfDirectory(
+            atPath: packageURL.path
+        ) {
+            summary.topLevelNames = topLevel.filter { $0 != "__MACOSX" }.sorted().prefix(12).map { $0 }
+        }
+        guard let enumerator = fileManager.enumerator(
+            at: packageURL,
+            includingPropertiesForKeys: [.isDirectoryKey, .fileSizeKey],
+            options: [.skipsHiddenFiles, .skipsPackageDescendants]
+        ) else { return summary }
+
+        var visited = 0
+        var seen: Set<String> = []
+        for case let itemURL as URL in enumerator {
+            visited += 1
+            if visited > entryLimit { break }
+            let values = try? itemURL.resourceValues(forKeys: [.isDirectoryKey])
+            if values?.isDirectory != true { summary.fileCount += 1 }
+            let name = itemURL.lastPathComponent
+            let lowered = name.lowercased()
+            for marker in dynamicNameMarkers
+            where lowered.contains(marker) && !seen.contains(marker) {
+                seen.insert(marker)
+                summary.markers.append(marker)
+            }
+            let ext = itemURL.pathExtension.lowercased()
+            if dynamicFileExtensions.contains(ext) && !seen.contains(ext) {
+                seen.insert(ext)
+                summary.markers.append(".\(ext)")
+            }
+        }
+        summary.markers = summary.markers.sorted()
+        return summary
+    }
+}
+
 enum TendiesPackageInspector {
     static func inspectExtractedPackage(
         at packageURL: URL,
@@ -347,7 +425,23 @@ enum TendiesPackageInspector {
             fileManager: fileManager
         )
 
-        guard !descriptors.isEmpty else { throw WallpaperLabError.noDescriptors }
+        guard !descriptors.isEmpty else {
+            // 之前这里静默地（无日志、无原因）抛 noDescriptors:动态壁纸包走得最多的就是这个分支,
+            // 用户只能看到一句笼统的"包内没有描述符"，甚至（弹窗被丢时）什么都看不到。
+            let summary = TendiesContentProbe.summarize(at: packageURL, fileManager: fileManager)
+            Log.warning(
+                "wallpaper: package has no usable descriptors " +
+                    "(dynamic=\(summary.isDynamic ? 1 : 0) files=\(summary.fileCount) " +
+                    "markers=[\(summary.markers.joined(separator: ","))] " +
+                    "top=[\(summary.topLevelNames.joined(separator: ","))]) path=\(packageURL.path)"
+            )
+            if summary.isDynamic {
+                throw WallpaperLabError.dynamicContentUnsupported(
+                    detail: summary.markers.prefix(4).joined(separator: ", ")
+                )
+            }
+            throw WallpaperLabError.noDescriptors
+        }
         guard descriptors.count <= WallpaperLabLimits.maximumDescriptorCount else {
             throw WallpaperLabError.packageTooLarge
         }
@@ -389,11 +483,22 @@ enum TendiesPackageInspector {
 
             let name = child.lastPathComponent.lowercased()
             if name == "container" {
-                let layout = try WallpaperLayoutScanner.scan(
-                    containerURL: child,
-                    rootValidator: { $0.standardizedFileURL == child.standardizedFileURL },
-                    fileManager: fileManager
-                )
+                // 动态壁纸包的 container/ 分支:PosterBoard 世代布局不符时 scan 会抛错,
+                // 之前该错误直接冒泡成"不支持的 PosterBoard 布局"且没有任何日志线索。
+                let layout: WallpaperPosterLayout
+                do {
+                    layout = try WallpaperLayoutScanner.scan(
+                        containerURL: child,
+                        rootValidator: { $0.standardizedFileURL == child.standardizedFileURL },
+                        fileManager: fileManager
+                    )
+                } catch {
+                    Log.warning(
+                        "wallpaper: container scan failed at \(child.path): " +
+                            "\(error.localizedDescription)"
+                    )
+                    throw error
+                }
                 for (identifier, descriptorDirectory) in layout.extensionDescriptorDirectories
                     .sorted(by: { $0.key < $1.key }) {
                     result += try descriptorSources(
@@ -440,6 +545,11 @@ enum TendiesPackageInspector {
     ) throws -> [WallpaperDescriptorSource] {
         guard WallpaperLayoutScanner.validExtensionIdentifier(extensionIdentifier),
               WallpaperLayoutScanner.isContained(directory, in: packageRoot) else {
+            // 之前静默拒绝:动态/实况壁纸包常用非 ASCII 目录名映射失败时无任何线索。
+            Log.warning(
+                "wallpaper: descriptor target rejected id=\"\(extensionIdentifier)\" " +
+                    "path=\(directory.path) packageRoot=\(packageRoot.path)"
+            )
             throw WallpaperLabError.unsafeArchive
         }
         try WallpaperLayoutScanner.validateDirectory(directory, fileManager: fileManager)
@@ -490,7 +600,10 @@ enum TendiesPackageInspector {
             ],
             options: [.skipsHiddenFiles, .skipsPackageDescendants]
         ) else {
-            throw WallpaperLabError.unsupportedPackage
+            // 枚举器拿不到 = 目录读不了(权限/被删/在 iCloud 未下载),属 I/O 失败,
+            // 不是"不支持的包";之前无日志地报 unsupportedPackage 会误导用户。
+            Log.warning("wallpaper: cannot enumerate descriptor tree \(directory.path): I/O failure")
+            throw WallpaperLabError.importReadFailed
         }
         for case let itemURL as URL in enumerator {
             guard WallpaperLayoutScanner.isContained(itemURL, in: packageRoot),
@@ -506,6 +619,10 @@ enum TendiesPackageInspector {
             if values.isRegularFile == true {
                 let size = Int64(values.fileSize ?? 0)
                 guard size >= 0, size <= WallpaperLabLimits.maximumEntryBytes else {
+                    Log.warning(
+                        "wallpaper: entry too large \(itemURL.lastPathComponent) " +
+                            "size=\(size) limit=\(WallpaperLabLimits.maximumEntryBytes)"
+                    )
                     throw WallpaperLabError.packageTooLarge
                 }
                 bytes += size
@@ -515,6 +632,9 @@ enum TendiesPackageInspector {
                     throw WallpaperLabError.packageTooLarge
                 }
             } else if values.isDirectory != true {
+                Log.warning(
+                    "wallpaper: unsupported entry kind (not file/dir) \(itemURL.path)"
+                )
                 throw WallpaperLabError.unsupportedPackage
             }
         }

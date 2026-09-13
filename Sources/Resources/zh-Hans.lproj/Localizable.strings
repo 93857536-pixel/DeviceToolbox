@@ -614,3 +614,18 @@
 "fold.lab.demo.battery" = "电量";
 "fold.lab.demo.network" = "网络";
 "fold.lab.demo.messages" = "消息";
+
+// ==== WallpaperLab 导入反馈补强(动态壁纸静默路径修复,appended 2026-09-13)====
+"wallpaper.busy_title" = "稍后再试";
+"wallpaper.busy_message" = "当前有其它操作正在进行,请等待其结束后再试。";
+"wallpaper.picker_empty_title" = "没有选择文件";
+"wallpaper.picker_empty_message" = "未选中任何 .tendies 壁纸包,请重新选择。";
+"wallpaper.notice_dismiss" = "关闭提示";
+"wallpaper.import_dynamic_title" = "动态壁纸暂不支持";
+"wallpaper.import_dynamic_hint" = "该包内是动态/实况壁纸内容(视频或实况照片载荷)。当前导入通道只支持静态 Collections/Photos/Mercury 描述符,请改用静态壁纸包。";
+"wallpaper.error.write_failed" = "写入失败(磁盘空间不足或解压中断),请重试";
+"wallpaper.error.dynamic_unsupported" = "不支持动态/实况壁纸内容";
+"wallpaper.error.dynamic_unsupported_detail" = "不支持动态/实况壁纸内容(检测到 %@)";
+"wallpaper.error.cloud_not_downloaded" = "该文件尚未从 iCloud 下载到本地。请先在「文件」App 中下载完成后重试。";
+"wallpaper.install_blocked_title" = "暂不能安装";
+"wallpaper.install_blocked_message" = "尚未确认 PosterBoard 可写(可能未获得容器权限或探针未通过)。请先点右上角刷新重新探测,再安装。";
