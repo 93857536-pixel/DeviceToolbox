@@ -15,9 +15,6 @@ enum WallpaperLabError: Error, Equatable, Sendable {
     case importReadFailed
     /// 解压或写暂存目录失败(磁盘满 / 解压中断等)——I/O 失败,不是格式问题。
     case importWriteFailed
-    /// 包内是动态/实况壁纸载荷(视频 / 实况照片),当前导入通道只支持静态描述符。
-    /// 携带探测到的内容标记(目录名或扩展名),用于给用户明确原因,而不是笼统"不支持"。
-    case dynamicContentUnsupported(detail: String)
     /// 源文件是 iCloud 占位符(尚未下载到本地):属性可读、体积看似正常,但内容未落地。
     /// 与"读不到文件"区分开,给用户"请先在文件 App 中下载完成"的明确指引。
     case importCloudNotDownloaded
@@ -40,7 +37,6 @@ extension WallpaperLabError: LocalizedError {
         case .accessDenied: return "wallpaper.error.access"
         case .importReadFailed: return "wallpaper.error.read_failed"
         case .importWriteFailed: return "wallpaper.error.write_failed"
-        case .dynamicContentUnsupported: return "wallpaper.error.dynamic_unsupported"
         case .importCloudNotDownloaded: return "wallpaper.error.cloud_not_downloaded"
         case .backupFailed: return "wallpaper.error.backup"
         case .installFailed: return "wallpaper.error.install"
@@ -347,11 +343,13 @@ enum WallpaperLayoutScanner {
     }
 }
 
-/// 包内容探测:把"包内没有可用描述符"细化为**可读原因**(动态/实况壁纸载荷 vs 纯垃圾包)。
+/// 包内容诊断:当"包内没有可用描述符"时,把诊断信息(动态/实况壁纸载荷 vs 纯垃圾包)
+/// 写进日志,帮助定位包结构问题。
 ///
 /// 纯文件系统只读探测(无系统调用、无特权 API),模拟器可安全调用。
-/// 用途:动态壁纸包整体被判 unsupported 时,必须给用户明确提示(哪类内容不支持、为什么),
-/// 而不是笼统报"包内没有描述符"或静默失败。
+/// 动态/实况壁纸包本身已被 `collectDescriptorSources` 正常识别(video-descriptors、
+/// container 内 PhotosPosterProvider 等),此探测只用于 `noDescriptors` 分支的诊断日志,
+/// 不再据此拒绝导入 —— 与 3105 一致(3105 只抛 noDescriptors,无动态特判)。
 enum TendiesContentProbe {
     /// 目录/文件名中出现即视为动态/实况壁纸载荷。
     static let dynamicNameMarkers = [
@@ -426,8 +424,10 @@ enum TendiesPackageInspector {
         )
 
         guard !descriptors.isEmpty else {
-            // 之前这里静默地（无日志、无原因）抛 noDescriptors:动态壁纸包走得最多的就是这个分支,
-            // 用户只能看到一句笼统的"包内没有描述符"，甚至（弹窗被丢时）什么都看不到。
+            // 动态/实况壁纸包(video-descriptors、container 内 PhotosPosterProvider 等)
+            // 已被 collectDescriptorSources 正常识别,能走到这里的只有真正无法识别的结构
+            // (如顶层目录名不匹配任何已知布局)。仍用日志记录诊断信息(动态标记/文件数/
+            // 顶层名),但不再据此特判拒绝 —— 与 3105 一致,统一抛 noDescriptors。
             let summary = TendiesContentProbe.summarize(at: packageURL, fileManager: fileManager)
             Log.warning(
                 "wallpaper: package has no usable descriptors " +
@@ -435,11 +435,6 @@ enum TendiesPackageInspector {
                     "markers=[\(summary.markers.joined(separator: ","))] " +
                     "top=[\(summary.topLevelNames.joined(separator: ","))]) path=\(packageURL.path)"
             )
-            if summary.isDynamic {
-                throw WallpaperLabError.dynamicContentUnsupported(
-                    detail: summary.markers.prefix(4).joined(separator: ", ")
-                )
-            }
             throw WallpaperLabError.noDescriptors
         }
         guard descriptors.count <= WallpaperLabLimits.maximumDescriptorCount else {

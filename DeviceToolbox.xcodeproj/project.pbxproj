@@ -39,6 +39,7 @@
 		3BAD35903FF0DBB1B7C277AC /* DiagnosticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0260CAC81A0DF15A499570CB /* DiagnosticsService.swift */; };
 		427792394A9A0915264B3EA9 /* CodecRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC930DD6A885633621BC22D3 /* CodecRoundTripTests.swift */; };
 		43130F26FB7E37A339A510D7 /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB16CB0450C2602BF717FDFC /* ToolsView.swift */; };
+		45A3791AC0CC69B85E0B742B /* WallpaperLabImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0C92005B22E36E527F878B /* WallpaperLabImportTests.swift */; };
 		464275967E5EB15C6C277D85 /* FeatureFlagsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 909F423A851FCC77F62DCDFB /* FeatureFlagsService.swift */; };
 		47E1C77E22EA5F593AA984CF /* ZipArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4236E3CA8F6DD36A80710C22 /* ZipArchiveService.swift */; };
 		4A1529308FB7B2141445167B /* Writer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FEF8B69E92D92FB146418E7 /* Writer.swift */; };
@@ -218,6 +219,7 @@
 		866D176564A7286EC225A87E /* KernelAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KernelAccess.swift; sourceTree = "<group>"; };
 		86D71ACE3DA8FB006C875F7A /* CompatibilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompatibilityTests.swift; sourceTree = "<group>"; };
 		88E7546347AD9D5D752441F3 /* WallpaperLabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperLabView.swift; sourceTree = "<group>"; };
+		8A0C92005B22E36E527F878B /* WallpaperLabImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperLabImportTests.swift; sourceTree = "<group>"; };
 		8DA953F3A3E1915D10F976B6 /* FileOpsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileOpsTests.swift; sourceTree = "<group>"; };
 		8FEF8B69E92D92FB146418E7 /* Writer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Writer.swift; sourceTree = "<group>"; };
 		909F423A851FCC77F62DCDFB /* FeatureFlagsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlagsService.swift; sourceTree = "<group>"; };
@@ -396,6 +398,7 @@
 				EC98982786A1BF41CD5A5785 /* PrivilegeMatrixTests.swift */,
 				6CBCA2E7699663192CD6749A /* TransactionTests.swift */,
 				18CF928648E7C1E11EBED253 /* UnsafeZipRejectTests.swift */,
+				8A0C92005B22E36E527F878B /* WallpaperLabImportTests.swift */,
 				5668897DFEC432D54CC562A5 /* ZipRoundTripTests.swift */,
 			);
 			path = DeviceToolboxTests;
@@ -891,6 +894,7 @@
 				AD87687C6B33C9BD91857932 /* PrivilegeMatrixTests.swift in Sources */,
 				8D76FC266D4B61DE3639ED36 /* TransactionTests.swift in Sources */,
 				2BE0497C3228B26DBD1331DB /* UnsafeZipRejectTests.swift in Sources */,
+				45A3791AC0CC69B85E0B742B /* WallpaperLabImportTests.swift in Sources */,
 				ACE8BCCA6FFC8A1AFD69C4A0 /* ZipRoundTripTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1058,7 +1062,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = "$(inherited) -lz";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.mobile.MobileHouseArrest;
 				SDKROOT = iphoneos;
@@ -1261,7 +1265,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				OTHER_LDFLAGS = "$(inherited) -lz";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.mobile.MobileHouseArrest;
 				SDKROOT = iphoneos;

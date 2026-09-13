@@ -378,7 +378,6 @@ struct WallpaperLabView: View {
                 () -> WallpaperImportOutcome in
                 var imported = 0
                 var failures: [String] = []
-                var dynamicRejections: [String] = []
                 for url in urls {
                     do {
                         _ = try WallpaperPackageStore.importPackage(from: url)
@@ -388,10 +387,6 @@ struct WallpaperLabView: View {
                         // 每条失败都带原始错误进日志(便于定位"哪一步静默了")。
                         let reason = wallpaperErrorMessage(error)
                         failures.append("\(url.lastPathComponent): \(reason)")
-                        if let labError = error as? WallpaperLabError,
-                           case .dynamicContentUnsupported(_) = labError {
-                            dynamicRejections.append(url.lastPathComponent)
-                        }
                         Log.warning(
                             "wallpaper: import rejected \(url.lastPathComponent): " +
                                 "\(error.localizedDescription) → \(reason)"
@@ -401,8 +396,7 @@ struct WallpaperLabView: View {
                 return WallpaperImportOutcome(
                     attempted: urls.count,
                     imported: imported,
-                    failures: failures,
-                    dynamicRejections: dynamicRejections
+                    failures: failures
                 )
             }.value
             reloadLocalData()
@@ -412,20 +406,14 @@ struct WallpaperLabView: View {
                 titleKey = "wallpaper.import_done_title"
                 message = String(localized: "wallpaper.import_done_message \(Int64(outcome.imported))")
             } else {
-                // 动态/实况壁纸整体不受支持时给专门标题 + 原因说明,而不是笼统"导入结果"。
-                titleKey = outcome.dynamicRejections.isEmpty
-                    ? "wallpaper.import_result_title"
-                    : "wallpaper.import_dynamic_title"
-                message = outcome.dynamicRejections.isEmpty
-                    ? outcome.failures.joined(separator: "\n")
-                    : outcome.failures.joined(separator: "\n")
-                        + "\n\n"
-                        + String(localized: "wallpaper.import_dynamic_hint")
+                // 动态/实况壁纸包与静态包同走一条导入链,失败只可能是真正的格式/IO 问题,
+                // 不再区分"动态内容"给专门标题。
+                titleKey = "wallpaper.import_result_title"
+                message = outcome.failures.joined(separator: "\n")
             }
             Log.info(
                 "wallpaper: import finished attempted=\(outcome.attempted) " +
-                    "imported=\(outcome.imported) failed=\(outcome.failures.count) " +
-                    "dynamicRejected=\(outcome.dynamicRejections.count)"
+                    "imported=\(outcome.imported) failed=\(outcome.failures.count)"
             )
             present(titleKey: titleKey, message: message, isFailure: !outcome.failures.isEmpty)
         }
@@ -606,17 +594,12 @@ private struct WallpaperImportOutcome: Sendable {
     let attempted: Int
     let imported: Int
     let failures: [String]
-    let dynamicRejections: [String]
 }
 
 /// 壁纸实验室错误 → 本地化文案(非隔离自由函数,可在 detached Task 内调用)。
-/// 动态内容不支持时附带探测到的标记(哪类内容不支持),其余沿用 localizationKey。
 /// 非 WallpaperLabError 的底层错误回落到系统 `localizedDescription`,避免只显示"未知错误"。
 func wallpaperErrorMessage(_ error: Error) -> String {
     if let wallpaperError = error as? WallpaperLabError {
-        if case .dynamicContentUnsupported(let detail) = wallpaperError, !detail.isEmpty {
-            return String(localized: "wallpaper.error.dynamic_unsupported_detail \(detail)")
-        }
         return String(localized: String.LocalizationValue(wallpaperError.localizationKey))
     }
     if let description = (error as? LocalizedError)?.errorDescription, !description.isEmpty {
