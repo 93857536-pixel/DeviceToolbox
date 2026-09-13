@@ -633,4 +633,6 @@
 "fold.lab.global.toggle" = "全应用折叠玻璃效果";
 "fold.lab.global.hint" = "开启后整个 App 按设备倾角渲染成透过倾斜玻璃窗的效果";
 "fold.lab.angle.global" = "已套用全局";
+"fold.lab.escape.button" = "关闭折叠特效";
+"fold.lab.escape.hint" = "全应用折叠特效已开启,点此立即关闭";
 "tab.experiments" = "实验";

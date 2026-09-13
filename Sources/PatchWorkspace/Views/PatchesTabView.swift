@@ -134,6 +134,7 @@ struct PatchesTabView: View {
             .padding(.horizontal, 4)
             .padding(.vertical, 8)
             .glassRowFill()
+            .accessibilityIdentifier("experimentsGlobalToggle")
         }
     }
 

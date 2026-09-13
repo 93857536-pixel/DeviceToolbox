@@ -50,7 +50,10 @@ final class TiltMotionModel {
         guard isMotionAvailable, !motionManager.isDeviceMotionActive else { return }
         // 陀螺参考帧:磁力计校正版拿长期 yaw 稳定度换延迟,而 yaw 正是
         // 这个效果跟踪的轴,所以不取。
-        motionManager.deviceMotionUpdateInterval = 1.0 / 120.0
+        // 全应用模式下屏幕每帧都要压平重建(layerEffect 栅格化),120Hz 的姿态
+        // 流让 SwiftUI 每 8ms 重建一次整棵界面,主线程开销偏大;降到 60Hz
+        // 对倾角观感无可见差别(人眼感知的折叠动画本来就是低通平滑的)。
+        motionManager.deviceMotionUpdateInterval = 1.0 / 60.0
         motionManager.startDeviceMotionUpdates(using: .xArbitraryZVertical, to: .main) { [weak self] motion, _ in
             guard let motion else { return }
             MainActor.assumeIsolated { self?.process(motion) }

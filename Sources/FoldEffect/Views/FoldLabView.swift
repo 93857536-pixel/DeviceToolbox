@@ -33,6 +33,7 @@ struct FoldLabView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .accessibilityIdentifier("foldLabGlobalToggle")
             }
 
             // 主界面外层 MainTabView 已按全局开关套 glassFold:开着时本页效果已由外层提供,

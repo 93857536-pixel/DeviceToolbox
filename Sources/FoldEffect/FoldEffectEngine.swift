@@ -46,15 +46,21 @@ final class FoldEffectEngine {
     }
 
     /// 喂给主界面外层 `.glassFold` 的倾角:关闭时恒 0(shader 按 `abs(angle) > 1e-4` 自动失效)。
+    /// 钳制到 ±45°:全应用模式下大倾角会把大半屏投影出界面(shader 设计上黑区),
+    /// 视觉上像"界面坏了";钳制后效果仍有透视纵深感,同时保住可读性。
     var currentAngle: Double {
-        isEnabled ? motion.tiltAngle : 0
+        guard isEnabled else { return 0 }
+        return min(max(motion.tiltAngle, -45 * .pi / 180), 45 * .pi / 180)
     }
 
-    /// 翻转/设置全局开关并持久化;关闭时复位姿态,避免冻结在倾斜状态。
-    func setEnabled(_ enabled: Bool) {
+    /// 翻转/设置全局开关;默认持久化到 UserDefaults。关闭时复位姿态,避免冻结在倾斜状态。
+    /// `persist=false` 供 UI 测试临时开启(不写默认值,不污染其他测试用例)。
+    func setEnabled(_ enabled: Bool, persist: Bool = true) {
         guard enabled != isEnabled else { return }
         isEnabled = enabled
-        UserDefaults.standard.set(enabled, forKey: AppStorageKeys.foldEffectEnabled)
+        if persist {
+            UserDefaults.standard.set(enabled, forKey: AppStorageKeys.foldEffectEnabled)
+        }
         Log.info("全应用折叠特效已\(enabled ? "开启" : "关闭")")
         if enabled {
             motion.start()

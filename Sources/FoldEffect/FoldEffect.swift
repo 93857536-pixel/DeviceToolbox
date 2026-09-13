@@ -54,7 +54,10 @@ private struct GlassFoldModifier: ViewModifier {
                             .float(parameters.blurSpread),
                             .float(parameters.darkening)
                         ),
-                        maxSampleOffset: .zero,
+                        // shader 会向远处采样(Vogel 盘模糊核,半径最大约 35pt);
+                        // maxSampleOffset 必须覆盖它,否则越界采样行为未定义,
+                        // 大倾角时边缘会发黑/断裂(观感像"界面坏了")。
+                        maxSampleOffset: CGSize(width: 40, height: 40),
                         isEnabled: abs(angle) > 1e-4
                     )
                 }

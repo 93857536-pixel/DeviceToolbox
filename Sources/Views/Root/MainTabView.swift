@@ -50,7 +50,40 @@ struct MainTabView: View {
             .tag(MainTab.settings)
         }
         .tint(Theme.accent)
+        // 根级逃生按钮:全应用折叠特效开启时,提供一个**不受**玻璃压平/透视
+        // 影响的关闭入口——套在 TabView 外层,不在任何 `.glassFold` 子树内。
+        // 页内那个开关在被 compositingGroup 压平、被透视位移的子树里可能点不到
+        // (命中测试污染 + 视觉位置≠命中区域),而这个外层按钮永远可点,
+        // 保证任何状态下都能把特效关掉,避免"开了就关不掉"的死锁。
+        .overlay(alignment: .bottom) {
+            Group {
+                if foldEffect.isEnabled {
+                    foldEscapeButton
+                        .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                }
+            }
+            .animation(.easeInOut(duration: 0.18), value: foldEffect.isEnabled)
+        }
         .background(Theme.pageBackdrop)
+    }
+
+    /// 全应用折叠特效的根级关闭按钮(黄色胶囊 + slash.circle,醒目且易识别)。
+    private var foldEscapeButton: some View {
+        Button {
+            foldEffect.setEnabled(false)
+        } label: {
+            Label(String(localized: "fold.lab.escape.button"), systemImage: "slash.circle")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(Color(uiColor: .systemYellow).opacity(0.96), in: Capsule())
+                .overlay(Capsule().strokeBorder(.white.opacity(0.5), lineWidth: 0.6))
+                .shadow(color: .black.opacity(0.25), radius: 6, y: 2)
+        }
+        .padding(.bottom, 64)
+        .accessibilityLabel(String(localized: "fold.lab.escape.button"))
+        .accessibilityHint(String(localized: "fold.lab.escape.hint"))
     }
 
     /// 单个 tab 页内容 + 条件折叠玻璃特效。
