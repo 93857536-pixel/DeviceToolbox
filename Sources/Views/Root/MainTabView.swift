@@ -5,11 +5,11 @@ enum MainTab: Hashable {
     case home
     case device
     case files
-    case patches
+    case patches   // 实验工具页(补丁工作台 + 两个实验室)
     case settings
 }
 
-/// 5 Tab 主界面:首页 / 设备 / 文件 / 补丁 / 设置。
+/// 5 Tab 主界面:首页 / 设备 / 文件 / 实验 / 设置。
 struct MainTabView: View {
     @State private var selection: MainTab = .home
     /// 全应用折叠玻璃特效引擎(App 入口经 `.environment()` 注入)。
@@ -40,7 +40,7 @@ struct MainTabView: View {
             tabContent(.patches) {
                 PatchesTabView()
             }
-            .tabItem { Label(String(localized: "tab.patches"), systemImage: "square.and.pencil") }
+            .tabItem { Label(String(localized: "tab.experiments"), systemImage: "flask") }
             .tag(MainTab.patches)
 
             tabContent(.settings) {

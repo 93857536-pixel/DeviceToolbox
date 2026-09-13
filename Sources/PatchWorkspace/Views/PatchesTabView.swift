@@ -7,7 +7,14 @@ struct PatchEditorRoute: Hashable {
     let projectID: UUID
 }
 
-/// 补丁工作台根页:项目库列表(名称/作者/私密锁/更新时间/已应用徽标)+ 工具栏(新建草稿/导入包)。
+/// 壁纸实验室入口路由(实验工具页内)。
+struct WallpaperLabRoute: Hashable {}
+
+/// 折叠玻璃实验室入口路由(实验工具页内)。
+struct FoldLabRoute: Hashable {}
+
+/// 实验工具页:补丁工作台 + 壁纸实验室 + 折叠玻璃实验室(原文件页两实验室入口收编于此)。
+/// struct 名保留 PatchesTabView 以最小化影响面,注释更新为「实验工具」。
 struct PatchesTabView: View {
     @StateObject private var viewModel = PatchesViewModel()
 
@@ -20,18 +27,28 @@ struct PatchesTabView: View {
 
     @State private var deleteTarget: ProjectIndexEntry?
 
+    /// 全应用折叠特效引擎(App 入口经 `.environment()` 注入)。
+    @Environment(FoldEffectEngine.self) private var foldEngine
+
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.defaultSpacing) {
+                labCards
                 projectsSection
             }
             .padding(Theme.defaultSpacing)
         }
         .background(Theme.pageBackdrop)
-        .navigationTitle(String(localized: "patch.title"))
+        .navigationTitle(String(localized: "tab.experiments"))
         .navigationBarTitleDisplayMode(.large)
         .navigationDestination(for: PatchEditorRoute.self) { route in
             PatchEditorView(projectID: route.projectID)
+        }
+        .navigationDestination(for: WallpaperLabRoute.self) { _ in
+            WallpaperLabView()
+        }
+        .navigationDestination(for: FoldLabRoute.self) { _ in
+            FoldLabView()
         }
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -74,6 +91,75 @@ struct PatchesTabView: View {
         .background { importPasswordAnchor }
         .background { deleteAnchor }
         .background { errorAnchor }
+    }
+
+    // MARK: - 实验室卡片(壁纸 + 折叠玻璃,原文件页入口收编)
+
+    @ViewBuilder
+    private var labCards: some View {
+        SectionCard(title: String(localized: "wallpaper.lab.title"), systemImage: "photo.on.rectangle.angled") {
+            NavigationLink(value: WallpaperLabRoute()) {
+                labRow(
+                    icon: "photo.on.rectangle.angled",
+                    title: String(localized: "wallpaper.lab.title"),
+                    subtitle: String(localized: "wallpaper.lab.subtitle")
+                )
+            }
+            .buttonStyle(.plain)
+        }
+
+        SectionCard(title: String(localized: "fold.lab.card.title"), systemImage: "iphone.gen3") {
+            NavigationLink(value: FoldLabRoute()) {
+                labRow(
+                    icon: "iphone.gen3",
+                    title: String(localized: "fold.lab.card.title"),
+                    subtitle: String(localized: "fold.lab.card.subtitle")
+                )
+            }
+            .buttonStyle(.plain)
+            // 全应用特效开关(随手可切,免进实验室页):开启后整个 App 按设备倾角渲染折角效果。
+            Toggle(isOn: Binding(
+                get: { foldEngine.isEnabled },
+                set: { foldEngine.setEnabled($0) }
+            )) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "fold.lab.global.toggle"))
+                        .font(.subheadline)
+                    Text(String(localized: "fold.lab.global.hint"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .font(.subheadline)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 8)
+            .glassRowFill()
+        }
+    }
+
+    private func labRow(icon: String, title: String, subtitle: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundStyle(Theme.accent)
+                .frame(width: 40, height: 40)
+                .background(Theme.accent.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(.primary)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(12)
+        .glassRowFill()
     }
 
     // MARK: - 项目列表

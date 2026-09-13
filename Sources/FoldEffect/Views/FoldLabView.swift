@@ -19,7 +19,7 @@ struct FoldLabView: View {
 
     var body: some View {
         List {
-            // 全应用特效开关:开启后整个 App(5 个 Tab)都按设备倾角渲染折角效果。
+            // 全应用特效开关:开启后整个 App(6 个 Tab)都按设备倾角渲染折角效果。
             Section(String(localized: "fold.lab.global")) {
                 Toggle(isOn: Binding(
                     get: { engine.isEnabled },

@@ -7,18 +7,11 @@ struct FileBrowserRoute: Hashable {
     let title: String
 }
 
-/// 壁纸实验室入口路由(仅沙盒逃逸激活时在文件页出现)。
-struct WallpaperLabRoute: Hashable {}
-
-/// 折叠玻璃实验室入口路由(文件页常显卡片进入)。
-struct FoldLabRoute: Hashable {}
-
 /// 文件工作台根页:三个沙盒根目录卡片 + 已导入入口 + 导入/新建文件夹工具按钮。
 /// 沙盒逃逸激活后额外显示「系统 App 容器」入口(SystemContainerRoute → SystemContainerView)。
 @MainActor
 struct FilesTabView: View {
     @StateObject private var viewModel = WorkspaceViewModel()
-    @ObservedObject private var exploit = ExploitController.shared
 
     @State private var showImport = false
     @State private var showNewFolder = false
@@ -32,8 +25,6 @@ struct FilesTabView: View {
                 // 可用状态与引导,避免入口被隐藏导致"看不到功能"。
                 systemContainerSection
                 wholeDeviceSection
-                wallpaperLabSection
-                foldLabSection
                 importedSection
             }
             .padding(Theme.defaultSpacing)
@@ -46,12 +37,6 @@ struct FilesTabView: View {
         }
         .navigationDestination(for: SystemContainerRoute.self) { _ in
             SystemContainerView()
-        }
-        .navigationDestination(for: WallpaperLabRoute.self) { _ in
-            WallpaperLabView()
-        }
-        .navigationDestination(for: FoldLabRoute.self) { _ in
-            FoldLabView()
         }
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -188,90 +173,6 @@ struct FilesTabView: View {
             .buttonStyle(.plain)
         }
     }
-
-    // MARK: - 壁纸实验室(沙盒逃逸激活后可见)
-
-    private var wallpaperLabSection: some View {
-        SectionCard(title: String(localized: "wallpaper.lab.title"), systemImage: "photo.on.rectangle.angled") {
-            NavigationLink(value: WallpaperLabRoute()) {
-                HStack(spacing: 12) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.title3)
-                        .foregroundStyle(Theme.accent)
-                        .frame(width: 40, height: 40)
-                        .background(Theme.accent.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(String(localized: "wallpaper.lab.title"))
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(.primary)
-                        Text(String(localized: "wallpaper.lab.subtitle"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                }
-                .padding(12)
-                .glassRowFill()
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    // MARK: - 折叠玻璃实验室(常显入口,与 3105 行为一致)
-
-    private var foldLabSection: some View {
-        SectionCard(title: String(localized: "fold.lab.card.title"), systemImage: "iphone.gen3") {
-            NavigationLink(value: FoldLabRoute()) {
-                HStack(spacing: 12) {
-                    Image(systemName: "iphone.gen3")
-                        .font(.title3)
-                        .foregroundStyle(Theme.accent)
-                        .frame(width: 40, height: 40)
-                        .background(Theme.accent.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(String(localized: "fold.lab.card.title"))
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(.primary)
-                        Text(String(localized: "fold.lab.card.subtitle"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                }
-                .padding(12)
-                .glassRowFill()
-            }
-            .buttonStyle(.plain)
-            // 全应用特效开关(随手可切,免进实验室页):开启后整个 App 按设备倾角渲染折角效果。
-            Toggle(isOn: Binding(
-                get: { foldEngine.isEnabled },
-                set: { foldEngine.setEnabled($0) }
-            )) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "fold.lab.global.toggle"))
-                        .font(.subheadline)
-                    Text(String(localized: "fold.lab.global.hint"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .font(.subheadline)
-            .padding(.horizontal, 4)
-            .padding(.vertical, 8)
-            .glassRowFill()
-        }
-    }
-
-    /// 全应用折叠特效引擎(App 入口经 `.environment()` 注入,`@Bindable` 仅作包装)。
-    @Environment(FoldEffectEngine.self) private var foldEngine
 
     // MARK: - 已导入
 

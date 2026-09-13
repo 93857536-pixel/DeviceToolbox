@@ -4,7 +4,7 @@ import UIKit
 /// App 入口。
 ///
 /// 根视图按「免责声明状态」切换:未同意时显示全屏 `DisclaimerView`,
-/// 同意后进入 `MainTabView`(5 Tab 主界面)。状态持久化在 UserDefaults,
+/// 同意后进入 `MainTabView`(6 Tab 主界面)。状态持久化在 UserDefaults,
 /// 键使用 `AppStorageKeys.disclaimerAccepted`。
 @main
 struct DeviceToolboxApp: App {

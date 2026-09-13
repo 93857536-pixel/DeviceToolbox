@@ -7,7 +7,7 @@ final class FoldLabUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    /// 启动 → 文件 Tab → 进入「折叠玻璃实验室」→ 校验效果区/控制区与手动滑杆。
+    /// 启动 → 实验 Tab(index 4)→ 进入「折叠玻璃实验室」→ 校验效果区/控制区与手动滑杆。
     /// 模拟器无姿态传感器,应自动落手动模式(即出现滑杆且可调)。
     func testFoldLabRendersAndControlsWork() throws {
         let app = XCUIApplication()
@@ -22,15 +22,15 @@ final class FoldLabUITests: XCTestCase {
         let tabBar = app.tabBars.firstMatch
         XCTAssertTrue(tabBar.waitForExistence(timeout: 10), "应进入主界面")
 
-        // 文件 Tab(index 2)
-        tabBar.buttons.element(boundBy: 2).tap()
+        // 实验 Tab(index 3):两个实验室入口 + 全应用特效开关收编在此
+        tabBar.buttons.element(boundBy: 3).tap()
 
         // 入口卡片(常显):滚动到可见再点副标题(卡片整体是可点区域)
         let subtitle = app.staticTexts["转动手机,看界面透过倾斜玻璃窗"].firstMatch
         for _ in 0..<6 where !subtitle.isHittable {
             app.swipeUp()
         }
-        XCTAssertTrue(subtitle.waitForExistence(timeout: 8), "文件页应有折叠玻璃实验室入口")
+        XCTAssertTrue(subtitle.waitForExistence(timeout: 8), "实验页应有折叠玻璃实验室入口")
         subtitle.tap()
 
         // 页面标题

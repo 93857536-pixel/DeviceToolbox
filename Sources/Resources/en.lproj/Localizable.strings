@@ -633,3 +633,4 @@
 "fold.lab.global.toggle" = "App-wide glass fold effect";
 "fold.lab.global.hint" = "When on, the whole app renders through a tilted glass window that follows device tilt";
 "fold.lab.angle.global" = "Applied globally";
+"tab.experiments" = "Experiments";
