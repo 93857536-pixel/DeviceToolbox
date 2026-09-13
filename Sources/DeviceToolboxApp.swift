@@ -9,6 +9,9 @@ import UIKit
 @main
 struct DeviceToolboxApp: App {
     @StateObject private var rootViewModel: RootViewModel
+    /// 全应用折叠玻璃特效引擎:App 级单例,经 `.environment()` 注入主界面,
+    /// 主界面整棵子树按设备倾角渲染成"透过倾斜玻璃窗"的效果(用户可全局开关)。
+    @State private var foldEffect = FoldEffectEngine()
 
     init() {
         // UI 测试支持:通过 launch argument 重置首次启动状态,
@@ -31,6 +34,7 @@ struct DeviceToolboxApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(rootViewModel)
+                .environment(foldEffect)
         }
     }
 }

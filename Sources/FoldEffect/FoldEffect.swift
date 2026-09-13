@@ -35,23 +35,31 @@ private struct GlassFoldModifier: ViewModifier {
     let angle: Double
     let parameters: GlassFoldParameters
 
+    /// 关闭态(angle≈0)返回**原生内容**,不套 compositingGroup:
+    /// 即便 shader 自禁用,压平栅格化仍会污染页面元素的命中测试/AX 树
+    /// (UI 测试实测:套在 Tab 页内容上后,页内元素 tap 报 "Not hittable")。
+    @ViewBuilder
     func body(content: Content) -> some View {
-        // 必须先压平整棵子树;否则 SwiftUI 给每个叶子各自开透明层,
-        // shader 看到的就不是组合后的界面。
-        content
-            .compositingGroup()
-            .visualEffect { [angle, parameters] content, _ in
-                content.layerEffect(
-                    ShaderLibrary.glassFold(
-                        .boundingRect,
-                        .float(angle),
-                        .float(parameters.eyeDistancePoints),
-                        .float(parameters.blurSpread),
-                        .float(parameters.darkening)
-                    ),
-                    maxSampleOffset: .zero,
-                    isEnabled: abs(angle) > 1e-4
-                )
-            }
+        if abs(angle) > 1e-4 {
+            // 必须先压平整棵子树;否则 SwiftUI 给每个叶子各自开透明层,
+            // shader 看到的就不是组合后的界面。
+            content
+                .compositingGroup()
+                .visualEffect { [angle, parameters] content, _ in
+                    content.layerEffect(
+                        ShaderLibrary.glassFold(
+                            .boundingRect,
+                            .float(angle),
+                            .float(parameters.eyeDistancePoints),
+                            .float(parameters.blurSpread),
+                            .float(parameters.darkening)
+                        ),
+                        maxSampleOffset: .zero,
+                        isEnabled: abs(angle) > 1e-4
+                    )
+                }
+        } else {
+            content
+        }
     }
 }

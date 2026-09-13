@@ -49,6 +49,7 @@
 		4F95B124359EC40DEC15077B /* MobileGestaltService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59B5AC37A46BDD9580CE5033 /* MobileGestaltService.swift */; };
 		5026F0B6E1895CA13C4BD8FF /* FeatureDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 576A281CE841BD5676149FA6 /* FeatureDetailView.swift */; };
 		51024CDAE72EC18172369D80 /* AIEnablePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D2726C0ACADE2BF03FF8BD /* AIEnablePolicy.swift */; };
+		524C236E44A0740B2344CA78 /* FoldEffectEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F7610F9DCA06C1ABCC436 /* FoldEffectEngine.swift */; };
 		53797F0D592166181E5B8D26 /* WallpaperLabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E7546347AD9D5D752441F3 /* WallpaperLabView.swift */; };
 		54996FD7070C3FECA2895291 /* GestaltSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D795315DEAF28E7C567F3BB /* GestaltSnapshotView.swift */; };
 		56E503B76C72CD13114FAA0A /* TiltMotionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBE35FBC2D6B0116EF7ECE0D /* TiltMotionModel.swift */; };
@@ -216,6 +217,7 @@
 		7FD0F7BCDD221988360C3E7F /* vnode.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = vnode.m; sourceTree = "<group>"; };
 		83193699906A0FAFEAF7457F /* DeviceToolbox-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DeviceToolbox-Bridging-Header.h"; sourceTree = "<group>"; };
 		83F93D672C8203146D0DF316 /* WallpaperResetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperResetView.swift; sourceTree = "<group>"; };
+		843F7610F9DCA06C1ABCC436 /* FoldEffectEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldEffectEngine.swift; sourceTree = "<group>"; };
 		866D176564A7286EC225A87E /* KernelAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KernelAccess.swift; sourceTree = "<group>"; };
 		86D71ACE3DA8FB006C875F7A /* CompatibilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompatibilityTests.swift; sourceTree = "<group>"; };
 		88E7546347AD9D5D752441F3 /* WallpaperLabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperLabView.swift; sourceTree = "<group>"; };
@@ -730,6 +732,7 @@
 			isa = PBXGroup;
 			children = (
 				EB5A98229BCDC616B3562131 /* FoldEffect.swift */,
+				843F7610F9DCA06C1ABCC436 /* FoldEffectEngine.swift */,
 				CBE35FBC2D6B0116EF7ECE0D /* TiltMotionModel.swift */,
 				DE995B6D308409392F0FB790 /* Shaders */,
 				E195974DEA8C61C7777C4F3E /* Views */,
@@ -938,6 +941,7 @@
 				D1D466B5F337CB15724F69AA /* FileOperationError.swift in Sources */,
 				6BAE114A2CA8DD4838D1B9FB /* FilesTabView.swift in Sources */,
 				AEAD8B752A1881DF512A606C /* FoldEffect.swift in Sources */,
+				524C236E44A0740B2344CA78 /* FoldEffectEngine.swift in Sources */,
 				D9F47EA7E3AAE5FB79F13264 /* FoldGlass.metal in Sources */,
 				D7C1B73BD6A6AB9E56CBC5CA /* FoldLabView.swift in Sources */,
 				57A78DD08C2965AA471C3CA8 /* FolderPickerView.swift in Sources */,
@@ -1062,7 +1066,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				OTHER_LDFLAGS = "$(inherited) -lz";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.mobile.MobileHouseArrest;
 				SDKROOT = iphoneos;
@@ -1265,7 +1269,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				OTHER_LDFLAGS = "$(inherited) -lz";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.mobile.MobileHouseArrest;
 				SDKROOT = iphoneos;

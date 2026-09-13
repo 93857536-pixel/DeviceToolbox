@@ -33,14 +33,14 @@ targets:
         OTHER_LDFLAGS: "$(inherited) -lz"
         TARGETED_DEVICE_FAMILY: "1"
         CURRENT_PROJECT_VERSION: "1"
-        MARKETING_VERSION: "1.0.4"
+        MARKETING_VERSION: "1.0.5"
         ENABLE_PREVIEWS: YES
         INFOPLIST_KEY_UIUserInterfaceStyle: Automatic
     info:
       path: Sources/Resources/Info.plist
       properties:
         CFBundleDisplayName: DeviceToolbox
-        CFBundleShortVersionString: "1.0.4"
+        CFBundleShortVersionString: "1.0.5"
         CFBundleVersion: "1"
         UILaunchScreen: {}
         NSCameraUsageDescription: "用于检测相机能力是否可用(不采集任何数据)。/ Used to check camera capability (no data collected)."

@@ -629,3 +629,7 @@
 "wallpaper.error.cloud_not_downloaded" = "This file has not been downloaded from iCloud yet. Download it in the Files app first, then try again.";
 "wallpaper.install_blocked_title" = "Install Not Available";
 "wallpaper.install_blocked_message" = "PosterBoard writability has not been confirmed (container access may be missing, or the probe did not pass). Tap the refresh button in the top bar to re-probe, then install.";
+"fold.lab.global" = "App-wide Effect";
+"fold.lab.global.toggle" = "App-wide glass fold effect";
+"fold.lab.global.hint" = "When on, the whole app renders through a tilted glass window that follows device tilt";
+"fold.lab.angle.global" = "Applied globally";

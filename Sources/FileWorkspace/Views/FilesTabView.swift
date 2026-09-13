@@ -250,8 +250,28 @@ struct FilesTabView: View {
                 .glassRowFill()
             }
             .buttonStyle(.plain)
+            // 全应用特效开关(随手可切,免进实验室页):开启后整个 App 按设备倾角渲染折角效果。
+            Toggle(isOn: Binding(
+                get: { foldEngine.isEnabled },
+                set: { foldEngine.setEnabled($0) }
+            )) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "fold.lab.global.toggle"))
+                        .font(.subheadline)
+                    Text(String(localized: "fold.lab.global.hint"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .font(.subheadline)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 8)
+            .glassRowFill()
         }
     }
+
+    /// 全应用折叠特效引擎(App 入口经 `.environment()` 注入,`@Bindable` 仅作包装)。
+    @Environment(FoldEffectEngine.self) private var foldEngine
 
     // MARK: - 已导入
 

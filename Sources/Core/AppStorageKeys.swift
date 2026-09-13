@@ -12,4 +12,6 @@ enum AppStorageKeys {
     static let compatibilityCacheVersion = "compatibilityCacheVersion"
     /// 是否已提示过低功耗模式
     static let lowPowerModeNotified = "lowPowerModeNotified"
+    /// 全应用折叠玻璃特效开关(FoldEffectEngine)
+    static let foldEffectEnabled = "foldEffectEnabled"
 }

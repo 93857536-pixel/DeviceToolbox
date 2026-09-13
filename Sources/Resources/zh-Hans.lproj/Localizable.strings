@@ -629,3 +629,7 @@
 "wallpaper.error.cloud_not_downloaded" = "该文件尚未从 iCloud 下载到本地。请先在「文件」App 中下载完成后重试。";
 "wallpaper.install_blocked_title" = "暂不能安装";
 "wallpaper.install_blocked_message" = "尚未确认 PosterBoard 可写(可能未获得容器权限或探针未通过)。请先点右上角刷新重新探测,再安装。";
+"fold.lab.global" = "全应用特效";
+"fold.lab.global.toggle" = "全应用折叠玻璃效果";
+"fold.lab.global.hint" = "开启后整个 App 按设备倾角渲染成透过倾斜玻璃窗的效果";
+"fold.lab.angle.global" = "已套用全局";
