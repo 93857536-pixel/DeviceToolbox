@@ -595,3 +595,22 @@
 // wallpaper import busy hint (appended 2026-09-12)
 "wallpaper.import_busy_title" = "稍后再试";
 "wallpaper.import_busy_message" = "当前有其它操作正在进行,请等待其结束后再导入。";
+
+// fold glass lab (added 2026-09-12, 设计借鉴 elijah-semyonov/DuoLikeAnimation, MIT)
+"fold.lab.card.title" = "折叠玻璃实验室";
+"fold.lab.card.subtitle" = "转动手机,看界面透过倾斜玻璃窗";
+"fold.lab.title" = "折叠玻璃实验室";
+"fold.lab.effect" = "效果";
+"fold.lab.angle.label" = "实时倾角";
+"fold.lab.control" = "控制";
+"fold.lab.mode" = "当前模式";
+"fold.lab.mode.motion" = "姿态跟踪";
+"fold.lab.mode.manual" = "手动角度";
+"fold.lab.recalibrate" = "重新校准零倾角";
+"fold.lab.recalibrate.hint" = "把手机放平到你想要的「零角度」姿态,点一下即可。";
+"fold.lab.motion.unavailable" = "当前设备无姿态传感器(模拟器),已自动切手动模式。";
+"fold.lab.manual.angle" = "手动角度";
+"fold.lab.demo.title" = "折叠玻璃";
+"fold.lab.demo.battery" = "电量";
+"fold.lab.demo.network" = "网络";
+"fold.lab.demo.messages" = "消息";

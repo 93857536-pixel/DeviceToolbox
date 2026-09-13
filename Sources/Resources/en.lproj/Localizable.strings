@@ -595,3 +595,22 @@
 // wallpaper import busy hint (appended 2026-09-12)
 "wallpaper.import_busy_title" = "Please Wait";
 "wallpaper.import_busy_message" = "Another operation is in progress. Try the import again when it finishes.";
+
+// fold glass lab (added 2026-09-12, design adapted from elijah-semyonov/DuoLikeAnimation, MIT)
+"fold.lab.card.title" = "Glass Fold Lab";
+"fold.lab.card.subtitle" = "Tilt your phone, watch the UI through a slanted glass pane";
+"fold.lab.title" = "Glass Fold Lab";
+"fold.lab.effect" = "Effect";
+"fold.lab.angle.label" = "Live Tilt";
+"fold.lab.control" = "Controls";
+"fold.lab.mode" = "Current Mode";
+"fold.lab.mode.motion" = "Motion tracking";
+"fold.lab.mode.manual" = "Manual angle";
+"fold.lab.recalibrate" = "Recalibrate Zero Tilt";
+"fold.lab.recalibrate.hint" = "Place the phone in your preferred \"zero\" pose, then tap to set it.";
+"fold.lab.motion.unavailable" = "No motion sensor on this device (simulator). Switched to manual mode.";
+"fold.lab.manual.angle" = "Manual Angle";
+"fold.lab.demo.title" = "Glass Fold";
+"fold.lab.demo.battery" = "Battery";
+"fold.lab.demo.network" = "Network";
+"fold.lab.demo.messages" = "Messages";

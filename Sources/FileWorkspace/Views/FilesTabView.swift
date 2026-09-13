@@ -10,6 +10,9 @@ struct FileBrowserRoute: Hashable {
 /// 壁纸实验室入口路由(仅沙盒逃逸激活时在文件页出现)。
 struct WallpaperLabRoute: Hashable {}
 
+/// 折叠玻璃实验室入口路由(文件页常显卡片进入)。
+struct FoldLabRoute: Hashable {}
+
 /// 文件工作台根页:三个沙盒根目录卡片 + 已导入入口 + 导入/新建文件夹工具按钮。
 /// 沙盒逃逸激活后额外显示「系统 App 容器」入口(SystemContainerRoute → SystemContainerView)。
 @MainActor
@@ -30,6 +33,7 @@ struct FilesTabView: View {
                 systemContainerSection
                 wholeDeviceSection
                 wallpaperLabSection
+                foldLabSection
                 importedSection
             }
             .padding(Theme.defaultSpacing)
@@ -45,6 +49,9 @@ struct FilesTabView: View {
         }
         .navigationDestination(for: WallpaperLabRoute.self) { _ in
             WallpaperLabView()
+        }
+        .navigationDestination(for: FoldLabRoute.self) { _ in
+            FoldLabView()
         }
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -199,6 +206,38 @@ struct FilesTabView: View {
                             .font(.body.weight(.medium))
                             .foregroundStyle(.primary)
                         Text(String(localized: "wallpaper.lab.subtitle"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(12)
+                .glassRowFill()
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: - 折叠玻璃实验室(常显入口,与 3105 行为一致)
+
+    private var foldLabSection: some View {
+        SectionCard(title: String(localized: "fold.lab.card.title"), systemImage: "iphone.gen3") {
+            NavigationLink(value: FoldLabRoute()) {
+                HStack(spacing: 12) {
+                    Image(systemName: "iphone.gen3")
+                        .font(.title3)
+                        .foregroundStyle(Theme.accent)
+                        .frame(width: 40, height: 40)
+                        .background(Theme.accent.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(String(localized: "fold.lab.card.title"))
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.primary)
+                        Text(String(localized: "fold.lab.card.subtitle"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

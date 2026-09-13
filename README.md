@@ -17,6 +17,7 @@ iOS 侧载(企业签)场景下的设备特权工具箱:内核漏洞链逃逸、�
 | 系统容器 | 容器级文件访问/扫描(MCM 通道),企业签含容器 entitlements 时可用 |
 | 整机文件 | 任意路径文件浏览,自动提权(依赖特权引擎) |
 | 壁纸实验室 | 系统壁纸安装/解析(3105 移植) |
+| 折叠玻璃实验室 | 磨砂玻璃折叠动画:转动手机,界面透过一块倾斜玻璃窗透视渲染(Metal layerEffect + CoreMotion),模拟器自动切手动滑杆模式 |
 | AI 强开 | 写 MobileGestalt/eligibility 开启 AI 能力,自动备份+原子写+可恢复 |
 | 型号伪装 | 修改 gestalt/eligibility 设备型号标识,备份可回滚 |
 | 清理器 | 缓存/日志清理工具页 |
@@ -87,4 +88,4 @@ xcodebuild -project DeviceToolbox.xcodeproj -scheme DeviceToolbox \
 
 ## 许可
 
-**GPLv3**(完整文本见 `LICENSE`)。ExploitCore 与壁纸实验室核心代码搬运自 [YangJiiii/3105](https://github.com/YangJiiii/3105)(GPLv3),相关源文件顶部已标注来源。
+**GPLv3**(完整文本见 `LICENSE`)。ExploitCore 与壁纸实验室核心代码搬运自 [YangJiiii/3105](https://github.com/YangJiiii/3105)(GPLv3),相关源文件顶部已标注来源。折叠玻璃实验室(`Sources/FoldEffect/`)效果设计借鉴 [elijah-semyonov/DuoLikeAnimation](https://github.com/elijah-semyonov/DuoLikeAnimation)(MIT License),为重新实现而非直接拷贝,文件头部已标注来源。
