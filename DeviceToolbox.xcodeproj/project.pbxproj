@@ -66,6 +66,7 @@
 		6195D88F531279389E697475 /* PatchRuleEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6AE3EB2B984F0B0DF1AA2E8 /* PatchRuleEditSheet.swift */; };
 		61C196F5B85FF3E0BB160B45 /* FileOpsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA953F3A3E1915D10F976B6 /* FileOpsTests.swift */; };
 		61E088C54D2BC24A94C85C6D /* DeviceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2569700FBBB2A132DFD144D /* DeviceInfo.swift */; };
+		62625C2BFD16BC0422EE2320 /* GlassFoldOffsetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F5A159A3A0B889D804668EC /* GlassFoldOffsetTests.swift */; };
 		62E0338400FCA68658856A4D /* PatchEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FD9C3E47B00F48C0F3999B /* PatchEditorViewModel.swift */; };
 		656D43B004D07ACA28DC55D2 /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83D908E416D6F0DCB49CB39 /* ImportView.swift */; };
 		65F213EEE1B5F3CCFD712B45 /* ExploitController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5640676001E6CEBAC68DC4AD /* ExploitController.swift */; };
@@ -225,6 +226,7 @@
 		7D86ADBC5E70EB3252B79011 /* NetworkDiagnoseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDiagnoseView.swift; sourceTree = "<group>"; };
 		7DD28CE06D237D9E3CC25907 /* kutils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = kutils.h; sourceTree = "<group>"; };
 		7F360A2C09BAB83681DC24B9 /* SupportPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportPolicy.swift; sourceTree = "<group>"; };
+		7F5A159A3A0B889D804668EC /* GlassFoldOffsetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassFoldOffsetTests.swift; sourceTree = "<group>"; };
 		7FD0F7BCDD221988360C3E7F /* vnode.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = vnode.m; sourceTree = "<group>"; };
 		80C993A89DCAB1ABAA667E00 /* LanguageSwitcherUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSwitcherUITests.swift; sourceTree = "<group>"; };
 		83193699906A0FAFEAF7457F /* DeviceToolbox-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DeviceToolbox-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -412,6 +414,7 @@
 				255C1706B227970070525985 /* DeviceInfoParsingTests.swift */,
 				8DA953F3A3E1915D10F976B6 /* FileOpsTests.swift */,
 				F794FE5D19F7FEEB961D12D2 /* FileWorkspaceTestSupport.swift */,
+				7F5A159A3A0B889D804668EC /* GlassFoldOffsetTests.swift */,
 				D90DE2AB32ACAE1DE2C133D0 /* LanguageManagerTests.swift */,
 				12A81BD0C77AF4F459606A31 /* LogUploadServiceTests.swift */,
 				EC98982786A1BF41CD5A5785 /* PrivilegeMatrixTests.swift */,
@@ -918,6 +921,7 @@
 				FF7C2E54766110966E544442 /* DeviceInfoParsingTests.swift in Sources */,
 				61C196F5B85FF3E0BB160B45 /* FileOpsTests.swift in Sources */,
 				330CA0275B20936B9A6E3AD2 /* FileWorkspaceTestSupport.swift in Sources */,
+				62625C2BFD16BC0422EE2320 /* GlassFoldOffsetTests.swift in Sources */,
 				1668381A1B0136883F2564FB /* LanguageManagerTests.swift in Sources */,
 				C2C111328518B232FED02339 /* LogUploadServiceTests.swift in Sources */,
 				AD87687C6B33C9BD91857932 /* PrivilegeMatrixTests.swift in Sources */,

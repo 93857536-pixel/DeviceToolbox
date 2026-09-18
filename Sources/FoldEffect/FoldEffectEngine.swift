@@ -48,9 +48,17 @@ final class FoldEffectEngine {
     /// 喂给主界面外层 `.glassFold` 的倾角:关闭时恒 0(shader 按 `abs(angle) > 1e-4` 自动失效)。
     /// 钳制到 ±45°:全应用模式下大倾角会把大半屏投影出界面(shader 设计上黑区),
     /// 视觉上像"界面坏了";钳制后效果仍有透视纵深感,同时保住可读性。
+    ///
+    /// 另外量化到 1° 步进:真机 CoreMotion 静止时仍有 ±0.1~0.5° 的陀螺噪声,
+    /// 若逐帧透传,全应用模式下 SwiftUI 每 60Hz 都要重建整页压平 + 重算
+    /// layerEffect 采样盒 + GPU 重采样,且快速抖动的角度值会放大越界采样的
+    /// 未定义行为窗口(真机渲染残破的帮凶)。量化后噪声级抖动根本不触发
+    /// 视图更新,只有真实 >1° 的倾角变化才驱动重建,观感无差别。
     var currentAngle: Double {
         guard isEnabled else { return 0 }
-        return min(max(motion.tiltAngle, -45 * .pi / 180), 45 * .pi / 180)
+        let clamped = min(max(motion.tiltAngle, -45 * Double.pi / 180), 45 * Double.pi / 180)
+        let step = Double.pi / 180           // 1°
+        return (clamped / step).rounded() * step
     }
 
     /// 翻转/设置全局开关;默认持久化到 UserDefaults。关闭时复位姿态,避免冻结在倾斜状态。

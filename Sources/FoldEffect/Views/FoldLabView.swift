@@ -40,7 +40,9 @@ struct FoldLabView: View {
             // 演示区不再单独套效果(避免双份叠加);关着时演示区局部套效果保证始终可演示。
             Section(String(localized: "fold.lab.effect")) {
                 demoScreen
-                    .glassFold(angle: engine.isEnabled ? 0 : engine.tiltAngle)
+                    .glassFold(angle: engine.isEnabled
+                               ? 0
+                               : min(max(engine.tiltAngle, -45 * .pi / 180), 45 * .pi / 180))
                     .frame(height: 220)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
                 LabeledContent(String(localized: "fold.lab.angle.label")) {
