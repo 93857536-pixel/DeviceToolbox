@@ -14,3 +14,7 @@ xcuserdata/
 # 日志/临时
 *.log
 /tmp/
+.live-review-dd/
+.live-review-marker
+.live-review-events.log
+.live-review-build.log
